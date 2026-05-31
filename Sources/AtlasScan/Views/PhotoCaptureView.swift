@@ -11,10 +11,10 @@ public struct PhotoCaptureView: View {
     private let preferredTwinArea: TwinArea
     private let onCapture: (CaptureItem, EvidenceRecord) -> Void
 
-    @StateObject private var cameraController = CameraSessionController()
     @State private var captureItems: [CaptureItem]
+    @State private var showNativeCamera = false
     @State private var showTagSheet = false
-    @State private var pendingPhotoData: Data?
+    @State private var pendingCapture: PendingCapture?
     @State private var attachToExistingItem = false
     @State private var selectedCaptureItemId: UUID?
     @State private var selectedTag: ObjectTag
@@ -44,12 +44,38 @@ public struct PhotoCaptureView: View {
 
     public var body: some View {
         NavigationStack {
-            VStack(spacing: 12) {
-                cameraContent
-                controls
+            VStack(spacing: 20) {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+                    .frame(maxWidth: .infinity, minHeight: 280)
+                    .overlay {
+                        VStack(spacing: 10) {
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 34))
+                                .foregroundStyle(.secondary)
+                            Text("Use the native camera to capture photo or video evidence.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
+                    }
+
+                if !recentTags.tags.isEmpty {
+                    Text("Recent: \(recentTags.tags.prefix(3).map(\.displayName).joined(separator: ", "))")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+
+                Button("Open Camera") {
+                    showNativeCamera = true
+                }
+                .buttonStyle(.borderedProminent)
+                .accessibilityLabel("Open camera")
             }
             .padding()
-            .navigationTitle("Capture Photo")
+            .navigationTitle("Capture Evidence")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -57,12 +83,23 @@ public struct PhotoCaptureView: View {
                 }
             }
         }
-        .onAppear {
-            cameraController.requestAccessIfNeeded()
-            cameraController.startSession()
-        }
-        .onDisappear {
-            cameraController.stopSession()
+        .sheet(isPresented: $showNativeCamera) {
+            NativeCameraCaptureView(
+                onCapturePhoto: { photoData in
+                    pendingCapture = .photo(photoData)
+                    prepareTagSheet()
+                    showTagSheet = true
+                },
+                onCaptureVideo: { videoURL in
+                    pendingCapture = .video(videoURL)
+                    prepareTagSheet()
+                    showTagSheet = true
+                },
+                onFailure: { error in
+                    errorMessage = "Failed to capture media: \(error.localizedDescription)"
+                }
+            )
+            .ignoresSafeArea()
         }
         .sheet(isPresented: $showTagSheet) {
             PhotoTagSheetView(
@@ -74,9 +111,10 @@ public struct PhotoCaptureView: View {
                 selectedTwinArea: $selectedTwinArea,
                 selectedStatus: $selectedStatus,
                 spaceLabel: $spaceLabel,
-                onRetake: clearPendingCapture,
+                title: pendingCapture?.tagTitle ?? "Tag Evidence",
+                onRetake: retakeCapture,
                 onDiscard: clearPendingCapture,
-                onSave: saveCapturedPhoto
+                onSave: saveCapturedEvidence
             )
         }
         .alert("Capture Error", isPresented: captureErrorPresented, actions: {
@@ -84,88 +122,9 @@ public struct PhotoCaptureView: View {
         }, message: {
             Text(errorMessage ?? "Unknown camera error.")
         })
-    }
-
-    @ViewBuilder
-    private var cameraContent: some View {
-        switch cameraController.authorizationStatus {
-        case .authorized:
-            CameraPreview(session: cameraController.session)
-                .frame(maxWidth: .infinity)
-                .frame(height: 380)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        case .notDetermined:
-            permissionPlaceholder(
-                title: "Camera access required",
-                subtitle: "Atlas Scan needs camera access to capture evidence."
-            )
-        case .denied, .restricted:
-            VStack(spacing: 12) {
-                permissionPlaceholder(
-                    title: "Camera access denied",
-                    subtitle: "Enable camera access in Settings to capture photos."
-                )
-                Button("Open Settings") {
-                    guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                    UIApplication.shared.open(url)
-                }
-            }
-        @unknown default:
-            permissionPlaceholder(
-                title: "Camera unavailable",
-                subtitle: "Camera access is not available right now."
-            )
+        .onDisappear {
+            cleanupPendingCaptureAsset()
         }
-    }
-
-    private var controls: some View {
-        VStack(spacing: 12) {
-            HStack {
-                if cameraController.hasTorch {
-                    Button(cameraController.isTorchEnabled ? "Torch Off" : "Torch On") {
-                        cameraController.toggleTorch()
-                    }
-                }
-                Spacer()
-                if !recentTags.tags.isEmpty {
-                    Text("Recent: \(recentTags.tags.prefix(3).map(\.displayName).joined(separator: ", "))")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.trailing)
-                }
-            }
-
-            Button {
-                takePhoto()
-            } label: {
-                Circle()
-                    .strokeBorder(.white, lineWidth: 6)
-                    .background(Circle().fill(Color.red))
-                    .frame(width: 78, height: 78)
-            }
-            .disabled(
-                cameraController.authorizationStatus != .authorized
-            )
-            .accessibilityLabel("Shutter")
-        }
-    }
-
-    private func permissionPlaceholder(title: String, subtitle: String) -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: "camera.fill")
-                .font(.system(size: 34))
-                .foregroundStyle(.secondary)
-            Text(title)
-                .font(.headline)
-            Text(subtitle)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal)
-        }
-        .frame(maxWidth: .infinity, minHeight: 260)
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var captureErrorPresented: Binding<Bool> {
@@ -173,19 +132,6 @@ public struct PhotoCaptureView: View {
             get: { errorMessage != nil },
             set: { if !$0 { errorMessage = nil } }
         )
-    }
-
-    private func takePhoto() {
-        cameraController.capturePhoto { result in
-            switch result {
-            case .success(let data):
-                pendingPhotoData = data
-                prepareTagSheet()
-                showTagSheet = true
-            case .failure(let error):
-                errorMessage = "Failed to capture photo: \(error.localizedDescription)"
-            }
-        }
     }
 
     private func prepareTagSheet() {
@@ -201,23 +147,38 @@ public struct PhotoCaptureView: View {
         }
     }
 
-    private func saveCapturedPhoto() {
-        guard let pendingPhotoData else { return }
+    private func saveCapturedEvidence() {
+        guard let pendingCapture else { return }
 
         let captureItem = resolvedCaptureItemForSave()
 
         do {
             let evidenceId = UUID()
-            let storedPath = try EvidenceMediaStore.savePhotoData(
-                pendingPhotoData,
-                visitId: visitId,
-                evidenceId: evidenceId
-            )
+            let storedPath: String
+            let evidenceType: EvidenceType
+
+            switch pendingCapture {
+            case .photo(let photoData):
+                storedPath = try EvidenceMediaStore.savePhotoData(
+                    photoData,
+                    visitId: visitId,
+                    evidenceId: evidenceId
+                )
+                evidenceType = .photo
+            case .video(let videoURL):
+                storedPath = try EvidenceMediaStore.saveVideoFile(
+                    from: videoURL,
+                    visitId: visitId,
+                    evidenceId: evidenceId
+                )
+                evidenceType = .video
+            }
+
             let record = EvidenceRecord(
                 id: evidenceId,
                 visitId: visitId,
                 captureItemId: captureItem.id,
-                evidenceType: .photo,
+                evidenceType: evidenceType,
                 localUri: storedPath,
                 provenanceLevel: .surveyor
             )
@@ -226,7 +187,7 @@ public struct PhotoCaptureView: View {
             clearPendingCapture()
             dismiss()
         } catch {
-            errorMessage = "Failed to save photo: \(error.localizedDescription)"
+            errorMessage = "Failed to save evidence: \(error.localizedDescription)"
         }
     }
 
@@ -258,9 +219,20 @@ public struct PhotoCaptureView: View {
         return newItem
     }
 
+    private func retakeCapture() {
+        clearPendingCapture()
+        showNativeCamera = true
+    }
+
     private func clearPendingCapture() {
-        pendingPhotoData = nil
+        cleanupPendingCaptureAsset()
+        pendingCapture = nil
         showTagSheet = false
+    }
+
+    private func cleanupPendingCaptureAsset() {
+        guard case .video(let videoURL) = pendingCapture else { return }
+        try? FileManager.default.removeItem(at: videoURL)
     }
 
     private func applySelectedCaptureItemDefaults() {
@@ -273,6 +245,111 @@ public struct PhotoCaptureView: View {
         selectedTwinArea = item.twinArea
         selectedStatus = item.status
         spaceLabel = item.spaceLabel ?? ""
+    }
+}
+
+private enum PendingCapture {
+    case photo(Data)
+    case video(URL)
+
+    var tagTitle: String {
+        switch self {
+        case .photo:
+            return "Tag Photo"
+        case .video:
+            return "Tag Video"
+        }
+    }
+}
+
+private struct NativeCameraCaptureView: UIViewControllerRepresentable {
+    let onCapturePhoto: (Data) -> Void
+    let onCaptureVideo: (URL) -> Void
+    let onFailure: (Error) -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    func makeUIViewController(context: Context) -> UIImagePickerController {
+        let controller = UIImagePickerController()
+        controller.sourceType = .camera
+        controller.delegate = context.coordinator
+        controller.videoQuality = .typeMedium
+        controller.mediaTypes = ["public.image", "public.movie"]
+        controller.videoMaximumDuration = 300
+        return controller
+    }
+
+    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    final class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+        private let parent: NativeCameraCaptureView
+
+        init(parent: NativeCameraCaptureView) {
+            self.parent = parent
+        }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+
+        func imagePickerController(
+            _ picker: UIImagePickerController,
+            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+        ) {
+            defer { parent.dismiss() }
+
+            guard let mediaType = info[.mediaType] as? String else {
+                parent.onFailure(
+                    NSError(
+                        domain: "PhotoCapture",
+                        code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "No media type returned by the camera."]
+                    )
+                )
+                return
+            }
+
+            if mediaType == "public.image" {
+                if let imageURL = info[.imageURL] as? URL,
+                   let imageData = try? Data(contentsOf: imageURL) {
+                    parent.onCapturePhoto(imageData)
+                    return
+                }
+
+                if let image = info[.originalImage] as? UIImage,
+                   let imageData = image.jpegData(compressionQuality: 0.92) {
+                    parent.onCapturePhoto(imageData)
+                    return
+                }
+
+                parent.onFailure(
+                    NSError(
+                        domain: "PhotoCapture",
+                        code: -2,
+                        userInfo: [NSLocalizedDescriptionKey: "No photo data was returned by the camera."]
+                    )
+                )
+                return
+            }
+
+            if mediaType == "public.movie",
+               let movieURL = info[.mediaURL] as? URL {
+                parent.onCaptureVideo(movieURL)
+                return
+            }
+
+            parent.onFailure(
+                NSError(
+                    domain: "PhotoCapture",
+                    code: -3,
+                    userInfo: [NSLocalizedDescriptionKey: "Unsupported media type was returned by the camera."]
+                )
+            )
+        }
     }
 }
 
@@ -296,6 +373,7 @@ private struct PhotoTagSheetView: View {
     @Binding var selectedTwinArea: TwinArea
     @Binding var selectedStatus: CaptureStatus
     @Binding var spaceLabel: String
+    let title: String
 
     let onRetake: () -> Void
     let onDiscard: () -> Void
@@ -373,7 +451,7 @@ private struct PhotoTagSheetView: View {
                     Button("Discard", role: .destructive) { onDiscard() }
                 }
             }
-            .navigationTitle("Tag Photo")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -431,163 +509,6 @@ private struct PhotoTagSheetView: View {
         spaceLabel = item.spaceLabel ?? ""
         hasManualTwinAreaOverride = item.twinArea != item.tag.defaultTwinArea
     }
-}
-
-private final class CameraSessionController: NSObject, ObservableObject {
-
-    @Published var authorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
-    @Published var hasTorch = false
-    @Published var isTorchEnabled = false
-
-    let session = AVCaptureSession()
-
-    private let sessionQueue = DispatchQueue(label: "AtlasScan.CameraSession")
-    private let photoOutput = AVCapturePhotoOutput()
-    private var isConfigured = false
-    private var captureCompletion: ((Result<Data, Error>) -> Void)?
-
-    func requestAccessIfNeeded() {
-        if authorizationStatus == .notDetermined {
-            AVCaptureDevice.requestAccess(for: .video) { [weak self] granted in
-                DispatchQueue.main.async {
-                    self?.authorizationStatus = granted ? .authorized : .denied
-                    if granted {
-                        self?.startSession()
-                    }
-                }
-            }
-        }
-    }
-
-    func startSession() {
-        guard authorizationStatus == .authorized else { return }
-        sessionQueue.async { [weak self] in
-            guard let self else { return }
-            self.configureSessionIfNeeded()
-            guard !self.session.isRunning else { return }
-            self.session.startRunning()
-        }
-    }
-
-    func stopSession() {
-        sessionQueue.async { [weak self] in
-            guard let self else { return }
-            if self.session.isRunning {
-                self.session.stopRunning()
-            }
-            self.setTorch(enabled: false)
-        }
-    }
-
-    func toggleTorch() {
-        sessionQueue.async { [weak self] in
-            guard let self else { return }
-            self.setTorch(enabled: !self.isTorchEnabled)
-        }
-    }
-
-    func capturePhoto(completion: @escaping (Result<Data, Error>) -> Void) {
-        sessionQueue.async { [weak self] in
-            guard let self else { return }
-            let settings = AVCapturePhotoSettings()
-            if self.photoOutput.availablePhotoCodecTypes.contains(.jpeg) {
-                settings.codec = .jpeg
-            }
-            self.captureCompletion = completion
-            self.photoOutput.capturePhoto(with: settings, delegate: self)
-        }
-    }
-
-    private func configureSessionIfNeeded() {
-        guard !isConfigured else { return }
-        session.beginConfiguration()
-        defer {
-            session.commitConfiguration()
-            isConfigured = true
-        }
-
-        guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
-              let input = try? AVCaptureDeviceInput(device: camera),
-              session.canAddInput(input),
-              session.canAddOutput(photoOutput) else {
-            return
-        }
-
-        session.addInput(input)
-        session.addOutput(photoOutput)
-
-        DispatchQueue.main.async {
-            self.hasTorch = camera.hasTorch
-        }
-    }
-
-    private func setTorch(enabled: Bool) {
-        guard let deviceInput = session.inputs.first as? AVCaptureDeviceInput else { return }
-        let device = deviceInput.device
-        guard device.hasTorch else { return }
-        do {
-            try device.lockForConfiguration()
-            defer { device.unlockForConfiguration() }
-            if enabled {
-                try device.setTorchModeOn(level: AVCaptureDevice.maxAvailableTorchLevel)
-            } else {
-                device.torchMode = .off
-            }
-            DispatchQueue.main.async {
-                self.isTorchEnabled = enabled
-            }
-        } catch {
-            print("Torch toggle failed: \(error.localizedDescription)")
-        }
-    }
-}
-
-extension CameraSessionController: AVCapturePhotoCaptureDelegate {
-    func photoOutput(_ output: AVCapturePhotoOutput,
-                     didFinishProcessingPhoto photo: AVCapturePhoto,
-                     error: Error?) {
-        if let error {
-            captureCompletion?(.failure(error))
-            captureCompletion = nil
-            return
-        }
-
-        guard let data = photo.fileDataRepresentation() else {
-            captureCompletion?(
-                .failure(
-                    NSError(
-                        domain: "PhotoCapture",
-                        code: -1,
-                        userInfo: [NSLocalizedDescriptionKey: "Failed to obtain photo data representation."]
-                    )
-                )
-            )
-            captureCompletion = nil
-            return
-        }
-        captureCompletion?(.success(data))
-        captureCompletion = nil
-    }
-}
-
-private struct CameraPreview: UIViewRepresentable {
-    let session: AVCaptureSession
-
-    func makeUIView(context: Context) -> PreviewView {
-        let view = PreviewView()
-        view.previewLayer.videoGravity = .resizeAspectFill
-        view.previewLayer.session = session
-        return view
-    }
-
-    func updateUIView(_ uiView: PreviewView, context: Context) {
-        uiView.previewLayer.session = session
-    }
-}
-
-private final class PreviewView: UIView {
-    override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
-    var previewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
 }
 
 private extension CaptureStatus {

@@ -40,12 +40,17 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(package.surveyNudgeStates[SurveyNudgeID.boilerCondensate.rawValue], .notRequired)
         XCTAssertEqual(package.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
         XCTAssertEqual(package.progressSummary.totalUnresolvedCount, visit.progressSummary.totalUnresolvedCount)
-        XCTAssertEqual(package.mediaManifest.count, 2)
+        XCTAssertEqual(package.mediaManifest.count, 3)
 
         let photoEntry = try XCTUnwrap(package.mediaManifest.first { $0.evidenceType == .photo })
         XCTAssertEqual(photoEntry.relativePath, visit.evidenceRecords[0].localUri)
         XCTAssertEqual(photoEntry.captureItemId, visit.captureItems[0].id)
         XCTAssertNotNil(photoEntry.fileSizeBytes)
+
+        let videoEntry = try XCTUnwrap(package.mediaManifest.first { $0.evidenceType == .video })
+        XCTAssertEqual(videoEntry.relativePath, visit.evidenceRecords[1].localUri)
+        XCTAssertEqual(videoEntry.captureItemId, visit.captureItems[0].id)
+        XCTAssertNotNil(videoEntry.fileSizeBytes)
     }
 
     func testExportWritesJSONThatRoundTrips() throws {
@@ -113,6 +118,16 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             fileManager: fileManager,
             baseDirectory: baseDirectory
         )
+        let videoEvidenceId = UUID()
+        let sourceVideoURL = baseDirectory.appendingPathComponent("source-video.mov")
+        try Data([0x90, 0x91, 0x92]).write(to: sourceVideoURL, options: .atomic)
+        let videoPath = try EvidenceMediaStore.saveVideoFile(
+            from: sourceVideoURL,
+            visitId: visitId,
+            evidenceId: videoEvidenceId,
+            fileManager: fileManager,
+            baseDirectory: baseDirectory
+        )
 
         let photoEvidence = EvidenceRecord(
             id: photoEvidenceId,
@@ -132,10 +147,19 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             voiceDurationSeconds: 5.0,
             provenanceLevel: .surveyor
         )
+        let videoEvidence = EvidenceRecord(
+            id: videoEvidenceId,
+            visitId: visitId,
+            captureItemId: captureItem.id,
+            evidenceType: .video,
+            createdAt: baseDate.addingTimeInterval(30),
+            localUri: videoPath,
+            provenanceLevel: .surveyor
+        )
         let noteEvidence = EvidenceRecord(
             visitId: visitId,
             evidenceType: .manualNote,
-            createdAt: baseDate.addingTimeInterval(30),
+            createdAt: baseDate.addingTimeInterval(40),
             transcript: "Customer notes colder upstairs rooms.",
             provenanceLevel: .customerStated
         )
@@ -145,7 +169,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             title: "Export Candidate",
             status: .completed,
             captureItems: [captureItem],
-            evidenceRecords: [photoEvidence, voiceEvidence, noteEvidence],
+            evidenceRecords: [photoEvidence, videoEvidence, voiceEvidence, noteEvidence],
             surveyNudgeStates: [
                 PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored),
                 PersistedSurveyNudgeState(nudgeID: .boilerCondensate, state: .notRequired)
