@@ -461,7 +461,138 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(decoded.captureItemIds.isEmpty)
     }
 
-    // MARK: - TwinArea
+    // MARK: - VisitProgressSummary
+
+    func testTwinAreaSummaryUnknownAndAssumedCounts() {
+        let visitId = UUID()
+        let baseDate = Date(timeIntervalSince1970: 3_000)
+
+        let items: [CaptureItem] = [
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .boiler,
+                        status: .complete,    createdAt: baseDate, updatedAt: baseDate),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .radiator,
+                        status: .needsReview, createdAt: baseDate, updatedAt: baseDate),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .thermostat,
+                        status: .unknown,     createdAt: baseDate, updatedAt: baseDate),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .pump,
+                        status: .assumed,     createdAt: baseDate, updatedAt: baseDate),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .filter,
+                        status: .assumed,     createdAt: baseDate, updatedAt: baseDate),
+        ]
+        let visit = Visit(id: visitId, title: "Progress Test", captureItems: items)
+        let summary = visit.twinAreaSummary(for: .system)
+
+        XCTAssertEqual(summary.captureItemCount, 5)
+        XCTAssertEqual(summary.needsReviewCount, 1)
+        XCTAssertEqual(summary.unknownCount, 1)
+        XCTAssertEqual(summary.assumedCount, 2)
+        XCTAssertEqual(summary.unresolvedCount, 4)
+    }
+
+    func testTwinAreaSummaryUnresolvedCountIsZeroWhenAllComplete() {
+        let visitId = UUID()
+        let items: [CaptureItem] = [
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .boiler, status: .complete),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .radiator, status: .notRequired),
+        ]
+        let visit = Visit(id: visitId, title: "Clean Survey", captureItems: items)
+        let summary = visit.twinAreaSummary(for: .system)
+
+        XCTAssertEqual(summary.needsReviewCount, 0)
+        XCTAssertEqual(summary.unknownCount, 0)
+        XCTAssertEqual(summary.assumedCount, 0)
+        XCTAssertEqual(summary.unresolvedCount, 0)
+    }
+
+    func testVisitProgressSummaryAggregates() {
+        let visitId = UUID()
+        let baseDate = Date(timeIntervalSince1970: 4_000)
+
+        let systemItems: [CaptureItem] = [
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .boiler,
+                        status: .needsReview, createdAt: baseDate, updatedAt: baseDate),
+            CaptureItem(visitId: visitId, twinArea: .system, tag: .radiator,
+                        status: .complete,    createdAt: baseDate, updatedAt: baseDate),
+        ]
+        let houseItems: [CaptureItem] = [
+            CaptureItem(visitId: visitId, twinArea: .house, tag: .shower,
+                        status: .unknown,     createdAt: baseDate, updatedAt: baseDate),
+        ]
+        let homeItems: [CaptureItem] = [
+            CaptureItem(visitId: visitId, twinArea: .home, tag: .risk,
+                        status: .assumed,     createdAt: baseDate, updatedAt: baseDate),
+        ]
+        let visitNote = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .manualNote,
+            createdAt: baseDate,
+            transcript: "Boiler needs service.",
+            provenanceLevel: .surveyor
+        )
+        let linkedEvidence = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: systemItems[0].id,
+            evidenceType: .photo,
+            createdAt: baseDate,
+            localUri: "VisitMedia/\(visitId.uuidString)/boiler.jpg",
+            provenanceLevel: .surveyor
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Full Progress Survey",
+            captureItems: systemItems + houseItems + homeItems,
+            evidenceRecords: [visitNote, linkedEvidence]
+        )
+
+        let progress = visit.progressSummary
+
+        XCTAssertEqual(progress.system.captureItemCount, 2)
+        XCTAssertEqual(progress.house.captureItemCount, 1)
+        XCTAssertEqual(progress.home.captureItemCount, 1)
+        XCTAssertEqual(progress.totalCapturedCount, 4)
+
+        XCTAssertEqual(progress.totalNeedsReviewCount, 1)
+        XCTAssertEqual(progress.totalUnknownCount, 1)
+        XCTAssertEqual(progress.totalAssumedCount, 1)
+        XCTAssertEqual(progress.totalUnresolvedCount, 3)
+
+        XCTAssertEqual(progress.visitNoteCount, 1)
+
+        XCTAssertEqual(progress.areaSummary(for: .system).captureItemCount, 2)
+        XCTAssertEqual(progress.areaSummary(for: .house).captureItemCount, 1)
+        XCTAssertEqual(progress.areaSummary(for: .home).captureItemCount, 1)
+    }
+
+    func testVisitProgressSummaryEmptyVisit() {
+        let visit = Visit(id: UUID(), title: "Empty Survey")
+        let progress = visit.progressSummary
+
+        XCTAssertEqual(progress.totalCapturedCount, 0)
+        XCTAssertEqual(progress.totalUnresolvedCount, 0)
+        XCTAssertEqual(progress.visitNoteCount, 0)
+    }
+
+    func testVisitProgressSummaryVisitNoteCountExcludesLinkedEvidence() {
+        let visitId = UUID()
+        let boiler = CaptureItem(visitId: visitId, twinArea: .system, tag: .boiler)
+        let linked = EvidenceRecord(
+            visitId: visitId, captureItemId: boiler.id, evidenceType: .photo,
+            localUri: "VisitMedia/\(visitId.uuidString)/boiler.jpg", provenanceLevel: .surveyor
+        )
+        let visitNote = EvidenceRecord(
+            visitId: visitId, evidenceType: .manualNote,
+            transcript: "Site is safe to access.", provenanceLevel: .surveyor
+        )
+        let visit = Visit(
+            id: visitId, title: "Note Count Survey",
+            captureItems: [boiler], evidenceRecords: [linked, visitNote]
+        )
+
+        XCTAssertEqual(visit.progressSummary.visitNoteCount, 1)
+    }
+
+
 
     func testTwinAreaAllCasesEncodeDecode() throws {
         for area in TwinArea.allCases {

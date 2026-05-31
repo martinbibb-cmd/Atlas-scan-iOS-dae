@@ -76,6 +76,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitProgressView.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VoiceNoteCaptureView.swift"
         },
         {
@@ -103,6 +107,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/PhotoCaptureView.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.swift.o",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitProgressView.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VoiceNoteCaptureView.swift.o"
       ],
       "otherArguments" : [
@@ -191,6 +196,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitProgressView.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VoiceNoteCaptureView.swift.o"
         },
         {
@@ -212,6 +221,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDetailView.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitListView.swift",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitProgressView.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VoiceNoteCaptureView.swift"
       ],
       "tempsPath" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build",
@@ -514,6 +524,7 @@
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDetailView.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitListView.swift",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitProgressView.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VoiceNoteCaptureView.swift",
       "-I",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/Modules",
@@ -814,6 +825,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitProgressView.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VoiceNoteCaptureView.swift"
         }
       ],
@@ -901,6 +916,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitProgressView.swift.o"
         },
         {
           "kind" : "file",
