@@ -6,6 +6,9 @@ fileprivate extension EvidenceMediaStoreTests {
     static nonisolated(unsafe) let __allTests__EvidenceMediaStoreTests = [
         ("testResolveURLReturnsAbsoluteFileURLWhenProvided", testResolveURLReturnsAbsoluteFileURLWhenProvided),
         ("testResolveURLUsesBaseDirectoryForRelativePath", testResolveURLUsesBaseDirectoryForRelativePath),
+        ("testSaveAudioDataCreatesDirectoryAndWritesFile", testSaveAudioDataCreatesDirectoryAndWritesFile),
+        ("testSaveAudioDataReusesExistingVisitDirectory", testSaveAudioDataReusesExistingVisitDirectory),
+        ("testSaveAudioDataThrowsWhenBaseDirectoryIsAFile", testSaveAudioDataThrowsWhenBaseDirectoryIsAFile),
         ("testSavePhotoDataCreatesDirectoryAndWritesFile", testSavePhotoDataCreatesDirectoryAndWritesFile),
         ("testSavePhotoDataThrowsWhenBaseDirectoryIsAFile", testSavePhotoDataThrowsWhenBaseDirectoryIsAFile)
     ]
@@ -38,12 +41,15 @@ fileprivate extension ModelTests {
         ("testSystemTagsMapToSystemTwinArea", testSystemTagsMapToSystemTwinArea),
         ("testSystemTwinDraftEncodeDecode", testSystemTwinDraftEncodeDecode),
         ("testTwinAreaAllCasesEncodeDecode", testTwinAreaAllCasesEncodeDecode),
+        ("testTwinAreaSummaryGroupsCaptureItemsEvidenceAndNeedsReview", testTwinAreaSummaryGroupsCaptureItemsEvidenceAndNeedsReview),
         ("testTwinDraftEmptyCaptureItemIds", testTwinDraftEmptyCaptureItemIds),
         ("testVisitEncodeDecode", testVisitEncodeDecode),
+        ("testVisitLevelEvidenceRecordsIncludeOnlyVisitNotes", testVisitLevelEvidenceRecordsIncludeOnlyVisitNotes),
         ("testVisitOptionalFieldsNil", testVisitOptionalFieldsNil),
         ("testVisitStatusAllCasesEncodeDecode", testVisitStatusAllCasesEncodeDecode),
         ("testVisitValidation_blankTitle", testVisitValidation_blankTitle),
-        ("testVisitValidation_validTitle", testVisitValidation_validTitle)
+        ("testVisitValidation_validTitle", testVisitValidation_validTitle),
+        ("testVoiceEvidenceRecordEncodeDecodeWithDuration", testVoiceEvidenceRecordEncodeDecodeWithDuration)
     ]
 }
 
@@ -65,7 +71,8 @@ fileprivate extension VisitStoreTests {
         ("testStatusTransitionsPersistToDisk", testStatusTransitionsPersistToDisk),
         ("testUpdateUnknownIdIsNoOp", testUpdateUnknownIdIsNoOp),
         ("testUpdateVisitChangesTitle", testUpdateVisitChangesTitle),
-        ("testUpdateVisitPersistsToDisk", testUpdateVisitPersistsToDisk)
+        ("testUpdateVisitPersistsToDisk", testUpdateVisitPersistsToDisk),
+        ("testVoiceEvidenceMetadataPersistsRoundTrip", testVoiceEvidenceMetadataPersistsRoundTrip)
     ]
 }
 @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")

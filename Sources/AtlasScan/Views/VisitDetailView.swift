@@ -15,6 +15,7 @@ public struct VisitDetailView: View {
 
     @State private var visit: Visit
     @State private var isEditing = false
+    @State private var selectedTwinArea: TwinArea = .system
     @State private var showAddCaptureItem = false
     @State private var editingCaptureItem: CaptureItem?
     @State private var showPhotoCapture = false
@@ -34,9 +35,11 @@ public struct VisitDetailView: View {
         Form {
             detailSection
             statusSection
-            captureActionsSection
-            captureItemSections
-            evidenceSection
+            twinAreaSection
+            selectedAreaCountsSection
+            selectedAreaActionsSection
+            selectedAreaItemsSection
+            visitNotesSection
             actionSection
             deleteSection
         }
@@ -49,8 +52,8 @@ public struct VisitDetailView: View {
         .sheet(isPresented: $showAddCaptureItem) {
             CaptureItemEditor(
                 visitId: visit.id,
-                initialTag: .boiler,
-                initialTwinArea: .system,
+                initialTag: selectedTwinArea.defaultObjectTag,
+                initialTwinArea: selectedTwinArea,
                 initialStatus: .unknown,
                 initialSpaceLabel: nil,
                 initialNotes: nil
@@ -68,10 +71,10 @@ public struct VisitDetailView: View {
         }
 #if canImport(UIKit) && canImport(AVFoundation)
         .sheet(isPresented: $showPhotoCapture) {
-            PhotoCaptureView(visit: visit) { captureItem, evidenceRecord in
+            PhotoCaptureView(visit: visit, onCapture: { captureItem, evidenceRecord in
                 upsertCaptureItem(captureItem)
                 addEvidenceRecord(evidenceRecord)
-            }
+            }, preferredTwinArea: selectedTwinArea)
         }
         .sheet(isPresented: $showVoiceCapture) {
             VoiceNoteCaptureView(visit: visit) { evidenceRecord in
@@ -91,6 +94,10 @@ public struct VisitDetailView: View {
         }, message: {
             Text(playbackErrorMessage ?? "Unknown playback error.")
         })
+    }
+
+    private var selectedTwinSummary: TwinAreaSummary {
+        visit.twinAreaSummary(for: selectedTwinArea)
     }
 
     // MARK: - Sections
@@ -122,9 +129,28 @@ public struct VisitDetailView: View {
         }
     }
 
-    private var captureActionsSection: some View {
-        Section("Capture Items") {
-            Button("Add Capture Item") {
+    private var twinAreaSection: some View {
+        Section("Twin View") {
+            Picker("Twin Area", selection: $selectedTwinArea) {
+                ForEach(TwinArea.allCases, id: \.self) { area in
+                    Text(area.displayName).tag(area)
+                }
+            }
+            .pickerStyle(.segmented)
+        }
+    }
+
+    private var selectedAreaCountsSection: some View {
+        Section("\(selectedTwinArea.displayName) Counts") {
+            LabeledContent("Capture Items", value: "\(selectedTwinSummary.captureItemCount)")
+            LabeledContent("Evidence Records", value: "\(selectedTwinSummary.evidenceRecordCount)")
+            LabeledContent("Needs Review", value: "\(selectedTwinSummary.needsReviewCount)")
+        }
+    }
+
+    private var selectedAreaActionsSection: some View {
+        Section("\(selectedTwinArea.displayName) Actions") {
+            Button("Add Capture Item to \(selectedTwinArea.displayName)") {
                 showAddCaptureItem = true
             }
 #if canImport(UIKit) && canImport(AVFoundation)
@@ -135,31 +161,79 @@ public struct VisitDetailView: View {
                 showVoiceCapture = true
             }
 #endif
-            if visit.captureItems.isEmpty {
-                Text("No capture items yet.")
+        }
+    }
+
+    private var selectedAreaItemsSection: some View {
+        Section("\(selectedTwinArea.displayName) Items") {
+            if selectedTwinSummary.captureItemGroups.isEmpty {
+                Text("No capture items in \(selectedTwinArea.displayName.lowercased()) yet.")
                     .foregroundStyle(.secondary)
+            } else {
+                ForEach(selectedTwinSummary.captureItemGroups) { group in
+                    VStack(alignment: .leading, spacing: 10) {
+                        Button {
+                            editingCaptureItem = group.captureItem
+                        } label: {
+                            CaptureItemRow(
+                                item: group.captureItem,
+                                linkedEvidenceCount: group.evidenceRecords.count
+                            )
+                        }
+                        .buttonStyle(.plain)
+
+                        if group.evidenceRecords.isEmpty {
+                            Text("No linked evidence yet.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        } else {
+                            ForEach(group.evidenceRecords) { record in
+                                EvidenceRow(
+                                    record: record,
+                                    captureItems: visit.captureItems,
+                                    showsCaptureItemName: false,
+                                    isPlaying: activeAudioEvidenceId == record.id,
+                                    onTogglePlayback: { toggleVoicePlayback(for: record) }
+                                )
+                                .padding(.leading, 12)
+                                .swipeActions {
+                                    Button("Delete", role: .destructive) {
+                                        deleteEvidenceRecord(id: record.id)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    .padding(.vertical, 4)
+                    .swipeActions {
+                        Button("Delete", role: .destructive) {
+                            deleteCaptureItem(id: group.captureItem.id)
+                        }
+                    }
+                }
             }
         }
     }
 
-    private var captureItemSections: some View {
-        Group {
-            ForEach(TwinArea.allCases, id: \.self) { area in
-                let items = visit.captureItems.filter { $0.twinArea == area }
-                if !items.isEmpty {
-                    Section(area.displayName) {
-                        ForEach(items) { item in
-                            Button {
-                                editingCaptureItem = item
-                            } label: {
-                                CaptureItemRow(item: item)
-                            }
-                            .buttonStyle(.plain)
-                            .swipeActions {
-                                Button("Delete", role: .destructive) {
-                                    deleteCaptureItem(id: item.id)
-                                }
-                            }
+    private var visitNotesSection: some View {
+        Section("Visit Notes") {
+            LabeledContent("Evidence Records", value: "\(visit.visitLevelEvidenceRecords.count)")
+
+            if visit.visitLevelEvidenceRecords.isEmpty {
+                Text("No visit-level notes yet.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(visit.visitLevelEvidenceRecords) { record in
+                    EvidenceRow(
+                        record: record,
+                        captureItems: visit.captureItems,
+                        showsCaptureItemName: false,
+                        isPlaying: activeAudioEvidenceId == record.id,
+                        onTogglePlayback: { toggleVoicePlayback(for: record) }
+                    )
+                    .swipeActions {
+                        Button("Delete", role: .destructive) {
+                            deleteEvidenceRecord(id: record.id)
                         }
                     }
                 }
@@ -170,24 +244,6 @@ public struct VisitDetailView: View {
     private var actionSection: some View {
         Section {
             statusToggleButton
-        }
-    }
-
-    private var evidenceSection: some View {
-        Section("Evidence") {
-            if sortedEvidenceRecords.isEmpty {
-                Text("No evidence captured yet.")
-                    .foregroundStyle(.secondary)
-            } else {
-                ForEach(sortedEvidenceRecords) { record in
-                    EvidenceRow(
-                        record: record,
-                        captureItems: visit.captureItems,
-                        isPlaying: activeAudioEvidenceId == record.id,
-                        onTogglePlayback: { toggleVoicePlayback(for: record) }
-                    )
-                }
-            }
         }
     }
 
@@ -269,8 +325,14 @@ public struct VisitDetailView: View {
         persistVisit()
     }
 
+    private func deleteEvidenceRecord(id: UUID) {
+        visit.evidenceRecords.removeAll { $0.id == id }
+        persistVisit()
+    }
+
     private func deleteCaptureItem(id: UUID) {
         visit.captureItems.removeAll { $0.id == id }
+        visit.evidenceRecords.removeAll { $0.captureItemId == id }
         persistVisit()
     }
 
@@ -278,11 +340,6 @@ public struct VisitDetailView: View {
         visit.updatedAt = Date()
         store.update(visit)
         syncFromStore()
-    }
-
-    private var sortedEvidenceRecords: [EvidenceRecord] {
-        visit.evidenceRecords
-            .sorted { $0.createdAt > $1.createdAt }
     }
 
     private func toggleVoicePlayback(for record: EvidenceRecord) {
@@ -323,6 +380,7 @@ public struct VisitDetailView: View {
 private struct CaptureItemRow: View {
 
     let item: CaptureItem
+    let linkedEvidenceCount: Int
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -330,6 +388,9 @@ private struct CaptureItemRow: View {
                 .font(.headline)
             Text(item.status.displayName)
                 .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Text("\(linkedEvidenceCount) evidence record\(linkedEvidenceCount == 1 ? "" : "s")")
+                .font(.caption)
                 .foregroundStyle(.secondary)
             if let space = item.spaceLabel, !space.isEmpty {
                 Text(space)
@@ -342,7 +403,133 @@ private struct CaptureItemRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+    }
+}
+
+private struct EvidenceRow: View {
+
+    let record: EvidenceRecord
+    let captureItems: [CaptureItem]
+    let showsCaptureItemName: Bool
+    let isPlaying: Bool
+    let onTogglePlayback: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+#if canImport(UIKit)
+            if record.evidenceType == .photo, let image = imageForRecord {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            } else {
+                placeholder
+            }
+#else
+            placeholder
+#endif
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(evidenceTitle)
+                    .font(.headline)
+                if showsCaptureItemName, let captureItemName = captureItemDisplayName {
+                    Text("Capture Item: \(captureItemName)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if let transcript = record.transcript, !transcript.isEmpty {
+                    Text(transcript)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let localUri = record.localUri {
+                    Text(localUri)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                if record.evidenceType == .voice,
+                   let duration = record.voiceDurationSeconds {
+                    Text("Duration: \(formattedDuration(duration))")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Spacer()
+
+            if record.evidenceType == .voice {
+                Button(isPlaying ? "Stop" : "Play") {
+                    onTogglePlayback()
+                }
+            }
+        }
         .padding(.vertical, 2)
+    }
+
+    private var placeholder: some View {
+        RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .fill(Color.secondary.opacity(0.2))
+            .frame(width: 64, height: 64)
+            .overlay {
+                Image(systemName: iconName)
+                    .foregroundStyle(.secondary)
+            }
+    }
+
+    private var iconName: String {
+        switch record.evidenceType {
+        case .photo:
+            return "photo"
+        case .voice:
+            return "waveform"
+        case .video:
+            return "video"
+        case .manualNote:
+            return "doc.text"
+        }
+    }
+
+#if canImport(UIKit)
+    private var imageForRecord: UIImage? {
+        guard record.evidenceType == .photo,
+              let localUri = record.localUri else { return nil }
+        let url = EvidenceMediaStore.resolveURL(for: localUri)
+        return UIImage(contentsOfFile: url.path)
+    }
+#endif
+
+    private var evidenceTitle: String {
+        switch record.evidenceType {
+        case .photo:
+            return "Photo"
+        case .voice:
+            return "Voice Note"
+        case .video:
+            return "Video"
+        case .manualNote:
+            return "Manual Note"
+        }
+    }
+
+    private func formattedDuration(_ duration: TimeInterval) -> String {
+        let total = Int(duration.rounded(.down))
+        let mins = total / 60
+        let secs = total % 60
+        return String(format: "%02d:%02d", mins, secs)
+    }
+
+    private var captureItemDisplayName: String? {
+        guard let captureItemId = record.captureItemId,
+              let item = captureItems.first(where: { $0.id == captureItemId }) else {
+            return nil
+        }
+        if let space = item.spaceLabel, !space.isEmpty {
+            return "\(item.tag.displayName) • \(space)"
+        }
+        return item.tag.displayName
     }
 }
 
@@ -359,6 +546,7 @@ private struct CaptureItemEditor: View {
     @State private var status: CaptureStatus
     @State private var spaceLabel: String
     @State private var notes: String
+    @State private var hasManualTwinAreaOverride: Bool
 
     init(
         visitId: UUID,
@@ -377,127 +565,7 @@ private struct CaptureItemEditor: View {
         _status = State(initialValue: initialStatus)
         _spaceLabel = State(initialValue: initialSpaceLabel ?? "")
         _notes = State(initialValue: initialNotes ?? "")
-    }
-
-    private struct EvidenceRow: View {
-
-        let record: EvidenceRecord
-        let captureItems: [CaptureItem]
-        let isPlaying: Bool
-        let onTogglePlayback: () -> Void
-
-        var body: some View {
-            HStack(spacing: 12) {
-#if canImport(UIKit)
-                if record.evidenceType == .photo, let image = imageForRecord {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 64, height: 64)
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                } else {
-                    placeholder
-                }
-#else
-                placeholder
-#endif
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(evidenceTitle)
-                        .font(.headline)
-                    if let captureItemName = captureItemDisplayName {
-                        Text("Capture Item: \(captureItemName)")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    if let localUri = record.localUri {
-                        Text(localUri)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    if record.evidenceType == .voice,
-                       let duration = record.voiceDurationSeconds {
-                        Text("Duration: \(formattedDuration(duration))")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Spacer()
-
-                if record.evidenceType == .voice {
-                    Button(isPlaying ? "Stop" : "Play") {
-                        onTogglePlayback()
-                    }
-                }
-            }
-            .padding(.vertical, 2)
-        }
-
-        private var placeholder: some View {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .fill(Color.secondary.opacity(0.2))
-                .frame(width: 64, height: 64)
-                .overlay {
-                    Image(systemName: iconName)
-                        .foregroundStyle(.secondary)
-                }
-        }
-
-        private var iconName: String {
-            switch record.evidenceType {
-            case .photo:
-                return "photo"
-            case .voice:
-                return "waveform"
-            case .video:
-                return "video"
-            case .manualNote:
-                return "doc.text"
-            }
-        }
-
-#if canImport(UIKit)
-        private var imageForRecord: UIImage? {
-            guard record.evidenceType == .photo,
-                  let localUri = record.localUri else { return nil }
-            let url = EvidenceMediaStore.resolveURL(for: localUri)
-            return UIImage(contentsOfFile: url.path)
-        }
-#endif
-
-        private var evidenceTitle: String {
-            switch record.evidenceType {
-            case .photo:
-                return "Photo"
-            case .voice:
-                return "Voice Note"
-            case .video:
-                return "Video"
-            case .manualNote:
-                return "Manual Note"
-            }
-        }
-
-        private func formattedDuration(_ duration: TimeInterval) -> String {
-            let total = Int(duration.rounded(.down))
-            let mins = total / 60
-            let secs = total % 60
-            return String(format: "%02d:%02d", mins, secs)
-        }
-
-        private var captureItemDisplayName: String? {
-            guard let captureItemId = record.captureItemId,
-                  let item = captureItems.first(where: { $0.id == captureItemId }) else {
-                return nil
-            }
-            if let space = item.spaceLabel, !space.isEmpty {
-                return "\(item.tag.displayName) • \(space)"
-            }
-            return item.tag.displayName
-        }
+        _hasManualTwinAreaOverride = State(initialValue: initialTwinArea != initialTag.defaultTwinArea)
     }
 
     init(
@@ -513,6 +581,7 @@ private struct CaptureItemEditor: View {
         _status = State(initialValue: existingItem.status)
         _spaceLabel = State(initialValue: existingItem.spaceLabel ?? "")
         _notes = State(initialValue: existingItem.notes ?? "")
+        _hasManualTwinAreaOverride = State(initialValue: existingItem.twinArea != existingItem.tag.defaultTwinArea)
     }
 
     var body: some View {
@@ -555,7 +624,12 @@ private struct CaptureItemEditor: View {
             }
         }
         .onChange(of: tag) { newTag in
-            twinArea = newTag.defaultTwinArea
+            if !hasManualTwinAreaOverride {
+                twinArea = newTag.defaultTwinArea
+            }
+        }
+        .onChange(of: twinArea) { newTwinArea in
+            hasManualTwinAreaOverride = newTwinArea != tag.defaultTwinArea
         }
     }
 
@@ -582,19 +656,6 @@ private struct CaptureItemEditor: View {
         }
         onSave(item)
         dismiss()
-    }
-}
-
-private extension TwinArea {
-    var displayName: String {
-        switch self {
-        case .system:
-            return "System"
-        case .house:
-            return "House"
-        case .home:
-            return "Home"
-        }
     }
 }
 

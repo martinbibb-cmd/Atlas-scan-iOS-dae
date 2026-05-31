@@ -71,6 +71,133 @@ final class ModelTests: XCTestCase {
         XCTAssertFalse(Visit(title: "   ").isValid)
     }
 
+    func testTwinAreaSummaryGroupsCaptureItemsEvidenceAndNeedsReview() {
+        let visitId = UUID()
+        let baseDate = Date(timeIntervalSince1970: 1_000)
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete,
+            createdAt: baseDate,
+            updatedAt: baseDate,
+            spaceLabel: "Utility"
+        )
+        let radiator = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .radiator,
+            status: .needsReview,
+            createdAt: baseDate.addingTimeInterval(10),
+            updatedAt: baseDate.addingTimeInterval(10),
+            spaceLabel: "Lounge"
+        )
+        let sink = CaptureItem(
+            visitId: visitId,
+            twinArea: .house,
+            tag: .sink,
+            status: .unknown,
+            createdAt: baseDate.addingTimeInterval(20),
+            updatedAt: baseDate.addingTimeInterval(20),
+            spaceLabel: "Kitchen"
+        )
+
+        let boilerPhoto = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: boiler.id,
+            evidenceType: .photo,
+            createdAt: baseDate.addingTimeInterval(30),
+            localUri: "VisitMedia/\(visitId.uuidString)/boiler.jpg",
+            provenanceLevel: .surveyor
+        )
+        let radiatorVoice = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: radiator.id,
+            evidenceType: .voice,
+            createdAt: baseDate.addingTimeInterval(40),
+            localUri: "VisitMedia/\(visitId.uuidString)/radiator.m4a",
+            voiceDurationSeconds: 8.2,
+            provenanceLevel: .surveyor
+        )
+        let sinkPhoto = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: sink.id,
+            evidenceType: .photo,
+            createdAt: baseDate.addingTimeInterval(50),
+            localUri: "VisitMedia/\(visitId.uuidString)/sink.jpg",
+            provenanceLevel: .surveyor
+        )
+        let visitNote = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .manualNote,
+            createdAt: baseDate.addingTimeInterval(60),
+            transcript: "Customer wants a warmer bathroom.",
+            provenanceLevel: .customerStated
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Grouped Survey",
+            captureItems: [boiler, radiator, sink],
+            evidenceRecords: [boilerPhoto, radiatorVoice, sinkPhoto, visitNote]
+        )
+
+        let summary = visit.twinAreaSummary(for: .system)
+
+        XCTAssertEqual(summary.captureItems.map(\.id), [boiler.id, radiator.id])
+        XCTAssertEqual(summary.evidenceRecords.map(\.id), [radiatorVoice.id, boilerPhoto.id])
+        XCTAssertEqual(summary.captureItemCount, 2)
+        XCTAssertEqual(summary.evidenceRecordCount, 2)
+        XCTAssertEqual(summary.needsReviewCount, 1)
+        XCTAssertEqual(summary.captureItemGroups.map(\.captureItem.id), [boiler.id, radiator.id])
+        XCTAssertEqual(summary.captureItemGroups[0].evidenceRecords.map(\.id), [boilerPhoto.id])
+        XCTAssertEqual(summary.captureItemGroups[1].evidenceRecords.map(\.id), [radiatorVoice.id])
+    }
+
+    func testVisitLevelEvidenceRecordsIncludeOnlyVisitNotes() {
+        let visitId = UUID()
+        let baseDate = Date(timeIntervalSince1970: 2_000)
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            createdAt: baseDate,
+            updatedAt: baseDate
+        )
+        let linkedEvidence = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: boiler.id,
+            evidenceType: .photo,
+            createdAt: baseDate.addingTimeInterval(10),
+            localUri: "VisitMedia/\(visitId.uuidString)/linked.jpg",
+            provenanceLevel: .surveyor
+        )
+        let firstVisitNote = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .voice,
+            createdAt: baseDate.addingTimeInterval(20),
+            localUri: "VisitMedia/\(visitId.uuidString)/visit-note-1.m4a",
+            voiceDurationSeconds: 4.5,
+            provenanceLevel: .surveyor
+        )
+        let secondVisitNote = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .manualNote,
+            createdAt: baseDate.addingTimeInterval(30),
+            transcript: "Customer wants lower running costs.",
+            provenanceLevel: .customerStated
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Visit Notes Survey",
+            captureItems: [boiler],
+            evidenceRecords: [linkedEvidence, firstVisitNote, secondVisitNote]
+        )
+
+        XCTAssertEqual(visit.visitLevelEvidenceRecords.map(\.id), [secondVisitNote.id, firstVisitNote.id])
+    }
+
     func testVisitStatusAllCasesEncodeDecode() throws {
         for status in VisitStatus.allCases {
             let data = try encoder.encode(status)

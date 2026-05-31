@@ -8,6 +8,7 @@ public struct PhotoCaptureView: View {
     @Environment(\.dismiss) private var dismiss
 
     private let visitId: UUID
+    private let preferredTwinArea: TwinArea
     private let onCapture: (CaptureItem, EvidenceRecord) -> Void
 
     @StateObject private var cameraController = CameraSessionController()
@@ -16,11 +17,19 @@ public struct PhotoCaptureView: View {
     @State private var showCaptureItemEditor = false
     @State private var errorMessage: String?
 
-    public init(visit: Visit, onCapture: @escaping (CaptureItem, EvidenceRecord) -> Void) {
+    public init(
+        visit: Visit,
+        onCapture: @escaping (CaptureItem, EvidenceRecord) -> Void,
+        preferredTwinArea: TwinArea? = nil
+    ) {
+        let resolvedTwinArea = preferredTwinArea ?? visit.captureItems.first?.twinArea ?? .system
         self.visitId = visit.id
+        self.preferredTwinArea = resolvedTwinArea
         self.onCapture = onCapture
         _captureItems = State(initialValue: visit.captureItems)
-        _selectedCaptureItemId = State(initialValue: visit.captureItems.first?.id)
+        _selectedCaptureItemId = State(
+            initialValue: visit.captureItems.first(where: { $0.twinArea == resolvedTwinArea })?.id ?? visit.captureItems.first?.id
+        )
     }
 
     public var body: some View {
@@ -46,7 +55,7 @@ public struct PhotoCaptureView: View {
             cameraController.stopSession()
         }
         .sheet(isPresented: $showCaptureItemEditor) {
-            CaptureItemQuickCreateView(visitId: visitId) { item in
+            CaptureItemQuickCreateView(visitId: visitId, initialTwinArea: preferredTwinArea) { item in
                 captureItems.append(item)
                 selectedCaptureItemId = item.id
             }
@@ -209,11 +218,26 @@ private struct CaptureItemQuickCreateView: View {
     @Environment(\.dismiss) private var dismiss
 
     let visitId: UUID
+    let initialTwinArea: TwinArea
     let onSave: (CaptureItem) -> Void
 
-    @State private var tag: ObjectTag = .boiler
+    @State private var tag: ObjectTag
+    @State private var twinArea: TwinArea
     @State private var spaceLabel = ""
     @State private var notes = ""
+    @State private var hasManualTwinAreaOverride: Bool
+
+    init(visitId: UUID, initialTwinArea: TwinArea, onSave: @escaping (CaptureItem) -> Void) {
+        self.visitId = visitId
+        self.initialTwinArea = initialTwinArea
+        self.onSave = onSave
+
+        let initialTag = initialTwinArea.defaultObjectTag
+
+        _tag = State(initialValue: initialTag)
+        _twinArea = State(initialValue: initialTwinArea)
+        _hasManualTwinAreaOverride = State(initialValue: initialTwinArea != initialTag.defaultTwinArea)
+    }
 
     var body: some View {
         NavigationStack {
@@ -222,6 +246,11 @@ private struct CaptureItemQuickCreateView: View {
                     Picker("Tag", selection: $tag) {
                         ForEach(ObjectTag.allCases, id: \.self) { item in
                             Text(item.displayName).tag(item)
+                        }
+                    }
+                    Picker("Twin Area", selection: $twinArea) {
+                        ForEach(TwinArea.allCases, id: \.self) { area in
+                            Text(area.displayName).tag(area)
                         }
                     }
                 }
@@ -241,7 +270,7 @@ private struct CaptureItemQuickCreateView: View {
                     Button("Save") {
                         let item = CaptureItem(
                             visitId: visitId,
-                            twinArea: tag.defaultTwinArea,
+                            twinArea: twinArea,
                             tag: tag,
                             status: .unknown,
                             spaceLabel: spaceLabel.nilIfBlank,
@@ -252,6 +281,14 @@ private struct CaptureItemQuickCreateView: View {
                     }
                 }
             }
+        }
+        .onChange(of: tag) { newTag in
+            if !hasManualTwinAreaOverride {
+                twinArea = newTag.defaultTwinArea
+            }
+        }
+        .onChange(of: twinArea) { newTwinArea in
+            hasManualTwinAreaOverride = newTwinArea != tag.defaultTwinArea
         }
     }
 }
