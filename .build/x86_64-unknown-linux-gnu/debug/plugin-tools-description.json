@@ -40,6 +40,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/FieldTestNote.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift"
         },
         {
@@ -77,6 +81,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift"
         },
         {
           "kind" : "file",
@@ -126,6 +134,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackage.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CaptureItem.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceRecord.swift.o",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestNote.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/ObjectTag.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/RecentObjectTags.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/SurveyNudge.swift.o",
@@ -136,6 +145,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceMediaStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestIssueLoggerSheet.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/PhotoCaptureView.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/SurveyNudgeViews.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDashboardView.swift.o",
@@ -195,6 +205,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestNote.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/ObjectTag.swift.o"
         },
         {
@@ -232,6 +246,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestIssueLoggerSheet.swift.o"
         },
         {
           "kind" : "file",
@@ -275,6 +293,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/EvidenceRecord.swift",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/FieldTestNote.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/RecentObjectTags.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/SurveyNudge.swift",
@@ -285,6 +304,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/SurveyNudgeViews.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDashboardView.swift",
@@ -595,6 +615,7 @@
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/EvidenceRecord.swift",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/FieldTestNote.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/RecentObjectTags.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/SurveyNudge.swift",
@@ -605,6 +626,7 @@
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/SurveyNudgeViews.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDashboardView.swift",
@@ -881,6 +903,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/FieldTestNote.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift"
         },
         {
@@ -918,6 +944,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift"
         },
         {
           "kind" : "file",
@@ -1020,6 +1050,14 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceRecord.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestIssueLoggerSheet.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestNote.swift.o"
         },
         {
           "kind" : "file",

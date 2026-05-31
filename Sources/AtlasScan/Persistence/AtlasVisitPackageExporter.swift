@@ -59,6 +59,7 @@ public struct AtlasVisitPackageExporter {
             progressSummary: visit.progressSummary,
             mediaManifest: mediaInspection.manifest,
             missingMediaWarnings: mediaInspection.missingWarnings,
+            fieldTestNotes: visit.fieldTestNotes,
             exportSummary: AtlasVisitPackageExportSummary(
                 captureItemCount: visit.captureItems.count,
                 evidenceCount: visit.evidenceRecords.count,

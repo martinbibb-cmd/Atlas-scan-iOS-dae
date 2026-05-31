@@ -41,6 +41,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(package.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
         XCTAssertEqual(package.progressSummary.totalUnresolvedCount, visit.progressSummary.totalUnresolvedCount)
         XCTAssertTrue(package.missingMediaWarnings.isEmpty)
+        XCTAssertEqual(package.fieldTestNotes, visit.fieldTestNotes)
         XCTAssertEqual(package.exportSummary.captureItemCount, visit.captureItems.count)
         XCTAssertEqual(package.exportSummary.evidenceCount, visit.evidenceRecords.count)
         XCTAssertEqual(package.exportSummary.mediaCount, 3)
@@ -80,6 +81,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
         XCTAssertEqual(decoded.exportSummary, result.package.exportSummary)
         XCTAssertEqual(decoded.missingMediaWarnings, result.package.missingMediaWarnings)
+        XCTAssertEqual(decoded.fieldTestNotes, result.package.fieldTestNotes)
     }
 
     func testAtlasVisitPackageEncodeDecodeRoundTrip() throws {
@@ -100,6 +102,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.mediaManifest.map(\.relativePath), package.mediaManifest.map(\.relativePath))
         XCTAssertEqual(decoded.exportSummary, package.exportSummary)
         XCTAssertEqual(decoded.missingMediaWarnings, package.missingMediaWarnings)
+        XCTAssertEqual(decoded.fieldTestNotes, package.fieldTestNotes)
     }
 
     func testBuildPackageWarnsWhenMediaIsMissing() throws {
@@ -203,6 +206,17 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             surveyNudgeStates: [
                 PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored),
                 PersistedSurveyNudgeState(nudgeID: .boilerCondensate, state: .notRequired)
+            ],
+            fieldTestModeEnabled: true,
+            fieldTestNotes: [
+                FieldTestNote(
+                    createdAt: baseDate.addingTimeInterval(50),
+                    category: .mediaProblem,
+                    details: "Voice note clipping on playback.",
+                    photoLocalUri: photoPath,
+                    voiceLocalUri: voicePath,
+                    voiceDurationSeconds: 5.0
+                )
             ]
         )
     }

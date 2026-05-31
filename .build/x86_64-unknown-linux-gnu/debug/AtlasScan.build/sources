@@ -1,6 +1,7 @@
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/EvidenceRecord.swift
+/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/FieldTestNote.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/RecentObjectTags.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/SurveyNudge.swift
@@ -11,6 +12,7 @@
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift
+/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/SurveyNudgeViews.swift
 /tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDashboardView.swift
