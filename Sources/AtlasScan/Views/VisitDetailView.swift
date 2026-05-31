@@ -3,6 +3,9 @@ import SwiftUI
 #if canImport(UIKit)
 import UIKit
 #endif
+#if canImport(AVFoundation)
+import AVFoundation
+#endif
 
 /// Shows and edits a single visit's metadata and lets the user change its status.
 public struct VisitDetailView: View {
@@ -15,6 +18,12 @@ public struct VisitDetailView: View {
     @State private var showAddCaptureItem = false
     @State private var editingCaptureItem: CaptureItem?
     @State private var showPhotoCapture = false
+    @State private var showVoiceCapture = false
+    @State private var playbackErrorMessage: String?
+    @State private var activeAudioEvidenceId: UUID?
+#if canImport(AVFoundation)
+    @State private var audioPlayer: AVAudioPlayer?
+#endif
 
     public init(visit: Visit, store: VisitStore) {
         _visit = State(initialValue: visit)
@@ -64,7 +73,24 @@ public struct VisitDetailView: View {
                 addEvidenceRecord(evidenceRecord)
             }
         }
+        .sheet(isPresented: $showVoiceCapture) {
+            VoiceNoteCaptureView(visit: visit) { evidenceRecord in
+                addEvidenceRecord(evidenceRecord)
+            }
+        }
 #endif
+        .onDisappear {
+#if canImport(AVFoundation)
+            audioPlayer?.stop()
+            audioPlayer = nil
+            activeAudioEvidenceId = nil
+#endif
+        }
+        .alert("Playback Error", isPresented: playbackErrorPresented, actions: {
+            Button("OK", role: .cancel) { playbackErrorMessage = nil }
+        }, message: {
+            Text(playbackErrorMessage ?? "Unknown playback error.")
+        })
     }
 
     // MARK: - Sections
@@ -104,6 +130,9 @@ public struct VisitDetailView: View {
 #if canImport(UIKit) && canImport(AVFoundation)
             Button("Capture Photo") {
                 showPhotoCapture = true
+            }
+            Button("Record Voice Note") {
+                showVoiceCapture = true
             }
 #endif
             if visit.captureItems.isEmpty {
@@ -146,12 +175,17 @@ public struct VisitDetailView: View {
 
     private var evidenceSection: some View {
         Section("Evidence") {
-            if photoEvidenceRecords.isEmpty {
-                Text("No photos captured yet.")
+            if sortedEvidenceRecords.isEmpty {
+                Text("No evidence captured yet.")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(photoEvidenceRecords) { record in
-                    EvidenceRow(record: record, captureItems: visit.captureItems)
+                ForEach(sortedEvidenceRecords) { record in
+                    EvidenceRow(
+                        record: record,
+                        captureItems: visit.captureItems,
+                        isPlaying: activeAudioEvidenceId == record.id,
+                        onTogglePlayback: { toggleVoicePlayback(for: record) }
+                    )
                 }
             }
         }
@@ -246,10 +280,43 @@ public struct VisitDetailView: View {
         syncFromStore()
     }
 
-    private var photoEvidenceRecords: [EvidenceRecord] {
+    private var sortedEvidenceRecords: [EvidenceRecord] {
         visit.evidenceRecords
-            .filter { $0.evidenceType == .photo }
             .sorted { $0.createdAt > $1.createdAt }
+    }
+
+    private func toggleVoicePlayback(for record: EvidenceRecord) {
+#if canImport(AVFoundation)
+        guard record.evidenceType == .voice,
+              let localUri = record.localUri else { return }
+
+        if activeAudioEvidenceId == record.id {
+            audioPlayer?.stop()
+            audioPlayer = nil
+            activeAudioEvidenceId = nil
+            return
+        }
+
+        do {
+            let url = EvidenceMediaStore.resolveURL(for: localUri)
+            let player = try AVAudioPlayer(contentsOf: url)
+            player.prepareToPlay()
+            player.play()
+            audioPlayer = player
+            activeAudioEvidenceId = record.id
+        } catch {
+            audioPlayer = nil
+            activeAudioEvidenceId = nil
+            playbackErrorMessage = "Unable to play voice note: \(error.localizedDescription)"
+        }
+#endif
+    }
+
+    private var playbackErrorPresented: Binding<Bool> {
+        Binding(
+            get: { playbackErrorMessage != nil },
+            set: { if !$0 { playbackErrorMessage = nil } }
+        )
     }
 }
 
@@ -316,11 +383,13 @@ private struct CaptureItemEditor: View {
 
         let record: EvidenceRecord
         let captureItems: [CaptureItem]
+        let isPlaying: Bool
+        let onTogglePlayback: () -> Void
 
         var body: some View {
             HStack(spacing: 12) {
-    #if canImport(UIKit)
-                if let image = imageForRecord {
+#if canImport(UIKit)
+                if record.evidenceType == .photo, let image = imageForRecord {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
@@ -329,12 +398,12 @@ private struct CaptureItemEditor: View {
                 } else {
                     placeholder
                 }
-    #else
+#else
                 placeholder
-    #endif
+#endif
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Photo")
+                    Text(evidenceTitle)
                         .font(.headline)
                     if let captureItemName = captureItemDisplayName {
                         Text("Capture Item: \(captureItemName)")
@@ -348,6 +417,20 @@ private struct CaptureItemEditor: View {
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
+                    if record.evidenceType == .voice,
+                       let duration = record.voiceDurationSeconds {
+                        Text("Duration: \(formattedDuration(duration))")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                if record.evidenceType == .voice {
+                    Button(isPlaying ? "Stop" : "Play") {
+                        onTogglePlayback()
+                    }
                 }
             }
             .padding(.vertical, 2)
@@ -358,18 +441,52 @@ private struct CaptureItemEditor: View {
                 .fill(Color.secondary.opacity(0.2))
                 .frame(width: 64, height: 64)
                 .overlay {
-                    Image(systemName: "photo")
+                    Image(systemName: iconName)
                         .foregroundStyle(.secondary)
                 }
         }
 
-    #if canImport(UIKit)
+        private var iconName: String {
+            switch record.evidenceType {
+            case .photo:
+                return "photo"
+            case .voice:
+                return "waveform"
+            case .video:
+                return "video"
+            case .manualNote:
+                return "doc.text"
+            }
+        }
+
+#if canImport(UIKit)
         private var imageForRecord: UIImage? {
-            guard let localUri = record.localUri else { return nil }
+            guard record.evidenceType == .photo,
+                  let localUri = record.localUri else { return nil }
             let url = EvidenceMediaStore.resolveURL(for: localUri)
             return UIImage(contentsOfFile: url.path)
         }
-    #endif
+#endif
+
+        private var evidenceTitle: String {
+            switch record.evidenceType {
+            case .photo:
+                return "Photo"
+            case .voice:
+                return "Voice Note"
+            case .video:
+                return "Video"
+            case .manualNote:
+                return "Manual Note"
+            }
+        }
+
+        private func formattedDuration(_ duration: TimeInterval) -> String {
+            let total = Int(duration.rounded(.down))
+            let mins = total / 60
+            let secs = total % 60
+            return String(format: "%02d:%02d", mins, secs)
+        }
 
         private var captureItemDisplayName: String? {
             guard let captureItemId = record.captureItemId,

@@ -32,6 +32,7 @@ public struct EvidenceRecord: Identifiable, Codable, Sendable {
     public var evidenceType: EvidenceType
     public let createdAt: Date
     public var localUri: String?
+    public var voiceDurationSeconds: TimeInterval?
     public var transcript: String?
     public var provenanceLevel: ProvenanceLevel
 
@@ -42,6 +43,7 @@ public struct EvidenceRecord: Identifiable, Codable, Sendable {
         evidenceType: EvidenceType,
         createdAt: Date = Date(),
         localUri: String? = nil,
+        voiceDurationSeconds: TimeInterval? = nil,
         transcript: String? = nil,
         provenanceLevel: ProvenanceLevel = .surveyor
     ) {
@@ -51,6 +53,7 @@ public struct EvidenceRecord: Identifiable, Codable, Sendable {
         self.evidenceType = evidenceType
         self.createdAt = createdAt
         self.localUri = localUri
+        self.voiceDurationSeconds = voiceDurationSeconds
         self.transcript = transcript
         self.provenanceLevel = provenanceLevel
     }
