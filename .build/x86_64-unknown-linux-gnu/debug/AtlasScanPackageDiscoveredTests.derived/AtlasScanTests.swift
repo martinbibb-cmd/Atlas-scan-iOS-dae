@@ -1,6 +1,15 @@
 import XCTest
 @testable import AtlasScanTests
 
+fileprivate extension AtlasVisitPackageExporterTests {
+    @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
+    static nonisolated(unsafe) let __allTests__AtlasVisitPackageExporterTests = [
+        ("testAtlasVisitPackageEncodeDecodeRoundTrip", testAtlasVisitPackageEncodeDecodeRoundTrip),
+        ("testBuildPackageIncludesVisitDataAndProgressSummary", testBuildPackageIncludesVisitDataAndProgressSummary),
+        ("testExportWritesJSONThatRoundTrips", testExportWritesJSONThatRoundTrips)
+    ]
+}
+
 fileprivate extension EvidenceMediaStoreTests {
     @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
     static nonisolated(unsafe) let __allTests__EvidenceMediaStoreTests = [
@@ -75,6 +84,7 @@ fileprivate extension VisitStoreTests {
         ("testMarkActiveSetsActiveStatus", testMarkActiveSetsActiveStatus),
         ("testMarkCompletedUpdatesStatus", testMarkCompletedUpdatesStatus),
         ("testMarkCompletedUpdatesUpdatedAt", testMarkCompletedUpdatesUpdatedAt),
+        ("testMarkExportedSetsExportedStatusAndPersists", testMarkExportedSetsExportedStatusAndPersists),
         ("testMultipleVisitsPersistInOrder", testMultipleVisitsPersistInOrder),
         ("testNilOptionalFieldsRoundTrip", testNilOptionalFieldsRoundTrip),
         ("testStatusTransitionsPersistToDisk", testStatusTransitionsPersistToDisk),
@@ -88,6 +98,7 @@ fileprivate extension VisitStoreTests {
 @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
 func __AtlasScanTests__allTests() -> [XCTestCaseEntry] {
     return [
+        testCase(AtlasVisitPackageExporterTests.__allTests__AtlasVisitPackageExporterTests),
         testCase(EvidenceMediaStoreTests.__allTests__EvidenceMediaStoreTests),
         testCase(ModelTests.__allTests__ModelTests),
         testCase(VisitStoreTests.__allTests__VisitStoreTests)

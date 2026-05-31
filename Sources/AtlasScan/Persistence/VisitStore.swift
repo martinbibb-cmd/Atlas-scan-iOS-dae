@@ -78,6 +78,11 @@ public final class VisitStore {
         setStatus(.completed, on: visit)
     }
 
+    /// Sets the visit's status to `.exported` and updates `updatedAt`.
+    public func markExported(_ visit: Visit) {
+        setStatus(.exported, on: visit)
+    }
+
     // MARK: - Private
 
     private func setStatus(_ status: VisitStatus, on visit: Visit) {
