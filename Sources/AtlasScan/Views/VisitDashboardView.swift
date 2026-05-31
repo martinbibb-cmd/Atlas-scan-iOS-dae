@@ -26,8 +26,6 @@ public struct VisitDashboardView: View {
     @State private var exportPreviewPackage: AtlasVisitPackage?
     @State private var exportedPackageURL: URL?
     @State private var exportErrorMessage: String?
-    @State private var captureInfoMessage: String?
-
     public init(visit: Visit, store: VisitStore) {
         _visit = State(initialValue: visit)
         self.store = store
@@ -48,7 +46,10 @@ public struct VisitDashboardView: View {
         }
         .navigationTitle(visit.title)
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { syncFromStore() }
+        .onAppear {
+            syncFromStore()
+            resolveLastExportedPackageURL()
+        }
         .sheet(isPresented: $showProgress) {
             VisitProgressView(
                 store: store,
@@ -95,20 +96,13 @@ public struct VisitDashboardView: View {
             Button("Voice") { showVoiceCapture = true }
 #endif
             Button("Manual Tag") { showManualCapture = true }
-            Button("Video") {
-                captureInfoMessage = "Video capture is not available in this build."
-            }
+            Button("Video") { showPhotoCapture = true }
             Button("Cancel", role: .cancel) {}
         }
         .alert("Export Failed", isPresented: exportErrorPresented, actions: {
             Button("OK", role: .cancel) { exportErrorMessage = nil }
         }, message: {
             Text(exportErrorMessage ?? "Unknown export error.")
-        })
-        .alert("Capture", isPresented: captureInfoPresented, actions: {
-            Button("OK", role: .cancel) { captureInfoMessage = nil }
-        }, message: {
-            Text(captureInfoMessage ?? "")
         })
         .sheet(item: $exportPreviewPackage) { package in
             VisitExportPreviewSheet(
@@ -497,6 +491,23 @@ public struct VisitDashboardView: View {
         }
     }
 
+    /// Looks for the most recent exported package file for this visit on disk.
+    /// Called on view appear so the share link is available after an app restart.
+    private func resolveLastExportedPackageURL() {
+        guard exportedPackageURL == nil else { return }
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let exportDir = docs.appendingPathComponent(AtlasVisitPackageExporter.exportsDirectoryName)
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: exportDir,
+            includingPropertiesForKeys: nil
+        ) else { return }
+        let prefix = "atlas-visit-\(visit.id.uuidString)-"
+        exportedPackageURL = files
+            .filter { $0.lastPathComponent.hasPrefix(prefix) }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
+            .first
+    }
+
     private func recordTitle(_ record: EvidenceRecord) -> String {
         switch record.evidenceType {
         case .photo:
@@ -514,13 +525,6 @@ public struct VisitDashboardView: View {
         Binding(
             get: { exportErrorMessage != nil },
             set: { if !$0 { exportErrorMessage = nil } }
-        )
-    }
-
-    private var captureInfoPresented: Binding<Bool> {
-        Binding(
-            get: { captureInfoMessage != nil },
-            set: { if !$0 { captureInfoMessage = nil } }
         )
     }
 
