@@ -141,6 +141,25 @@ final class VisitStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].voiceDurationSeconds, 18.4)
     }
 
+    func testSurveyNudgeStatesPersistRoundTrip() {
+        let visit = Visit(
+            title: "Nudge State Survey",
+            surveyNudgeStates: [
+                PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored),
+                PersistedSurveyNudgeState(nudgeID: .boilerCondensate, state: .notRequired)
+            ]
+        )
+
+        VisitStore(fileURL: fileURL).add(visit)
+        let reloaded = VisitStore(fileURL: fileURL)
+
+        XCTAssertEqual(reloaded.visits[0].surveyNudgeStates.count, 2)
+        XCTAssertEqual(reloaded.visits[0].surveyNudgeStates[0].nudgeID, .boilerGasMeter)
+        XCTAssertEqual(reloaded.visits[0].surveyNudgeStates[0].state, .ignored)
+        XCTAssertEqual(reloaded.visits[0].surveyNudgeStates[1].nudgeID, .boilerCondensate)
+        XCTAssertEqual(reloaded.visits[0].surveyNudgeStates[1].state, .notRequired)
+    }
+
     func testMultipleVisitsPersistInOrder() {
         let store = VisitStore(fileURL: fileURL)
         store.add(Visit(title: "First"))

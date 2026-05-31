@@ -40,7 +40,32 @@ public struct VisitProgressView: View {
 
     private func progressList(for visit: Visit) -> some View {
         let summary = visit.progressSummary
+        let nudges = SurveyNudgeEngine.nudges(for: visit)
+        let priorityNudges = nudges.filter { $0.isPriority && $0.isActive }
+        let activeNudges = nudges.filter { !$0.isPriority && $0.isActive }
         return List {
+            if !priorityNudges.isEmpty {
+                Section("Priority Nudges") {
+                    ForEach(priorityNudges) { nudge in
+                        SurveyNudgeRow(nudge: nudge)
+                    }
+                }
+            }
+
+            Section("Survey Nudges") {
+                if activeNudges.isEmpty {
+                    Text("No active nudges right now.")
+                        .foregroundStyle(.secondary)
+                } else {
+                    ForEach(activeNudges) { nudge in
+                        SurveyNudgeRow(
+                            nudge: nudge,
+                            onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
+                        )
+                    }
+                }
+            }
+
             ForEach(TwinArea.allCases, id: \.self) { area in
                 areaSectionView(summary.areaSummary(for: area), area: area)
             }
@@ -139,6 +164,13 @@ public struct VisitProgressView: View {
         guard let index = updated.captureItems.firstIndex(where: { $0.id == itemId }) else { return }
         updated.captureItems[index].status = .complete
         updated.captureItems[index].updatedAt = Date()
+        updated.updatedAt = Date()
+        store.update(updated)
+    }
+
+    private func updateSurveyNudgeState(_ id: SurveyNudgeID, state: SurveyNudgeState) {
+        guard var updated = store.visits.first(where: { $0.id == visitId }) else { return }
+        updated.setSurveyNudgeState(state, for: id)
         updated.updatedAt = Date()
         store.update(updated)
     }

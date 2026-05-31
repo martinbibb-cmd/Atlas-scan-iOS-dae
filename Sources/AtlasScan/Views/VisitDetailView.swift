@@ -43,6 +43,8 @@ public struct VisitDetailView: View {
             selectedAreaActionsSection
             selectedAreaItemsSection
             visitNotesSection
+            surveyNudgesSection
+            resolvedSurveyNudgesSection
             actionSection
             deleteSection
         }
@@ -123,6 +125,18 @@ public struct VisitDetailView: View {
 
     private var selectedTwinSummary: TwinAreaSummary {
         visit.twinAreaSummary(for: selectedTwinArea)
+    }
+
+    private var surveyNudges: [SurveyNudge] {
+        SurveyNudgeEngine.nudges(for: visit)
+    }
+
+    private var activeSurveyNudges: [SurveyNudge] {
+        surveyNudges.filter(\.isActive)
+    }
+
+    private var resolvedSurveyNudges: [SurveyNudge] {
+        surveyNudges.filter { !$0.isActive }
     }
 
     // MARK: - Sections
@@ -266,6 +280,39 @@ public struct VisitDetailView: View {
         }
     }
 
+    @ViewBuilder
+    private var surveyNudgesSection: some View {
+        Section("Survey Nudges") {
+            if activeSurveyNudges.isEmpty {
+                Text("No active nudges right now.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(activeSurveyNudges) { nudge in
+                    SurveyNudgeRow(
+                        nudge: nudge,
+                        onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
+                    )
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var resolvedSurveyNudgesSection: some View {
+        if !resolvedSurveyNudges.isEmpty {
+            Section("Resolved Nudges") {
+                ForEach(resolvedSurveyNudges) { nudge in
+                    SurveyNudgeRow(
+                        nudge: nudge,
+                        onClearState: {
+                            clearSurveyNudgeState(nudge.id)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
     private var actionSection: some View {
         Section {
             statusToggleButton
@@ -387,6 +434,16 @@ public struct VisitDetailView: View {
         } catch {
             exportErrorMessage = "Unable to export visit package: \(error.localizedDescription)"
         }
+    }
+
+    private func updateSurveyNudgeState(_ id: SurveyNudgeID, state: SurveyNudgeState) {
+        visit.setSurveyNudgeState(state, for: id)
+        persistVisit()
+    }
+
+    private func clearSurveyNudgeState(_ id: SurveyNudgeID) {
+        visit.clearSurveyNudgeState(for: id)
+        persistVisit()
     }
 
     private func toggleVoicePlayback(for record: EvidenceRecord) {
