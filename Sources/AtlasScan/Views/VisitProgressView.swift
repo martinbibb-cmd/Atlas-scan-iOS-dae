@@ -12,6 +12,7 @@ public struct VisitProgressView: View {
     public let visitId: UUID
     @Binding public var selectedTwinArea: TwinArea
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(SurveyAssistanceLevel.storageKey) private var assistanceLevelRaw = SurveyAssistanceLevel.defaultLevel.rawValue
 
     public init(store: VisitStore, visitId: UUID, selectedTwinArea: Binding<TwinArea>) {
         self.store = store
@@ -21,6 +22,10 @@ public struct VisitProgressView: View {
 
     private var visit: Visit? {
         store.visits.first { $0.id == visitId }
+    }
+
+    private var assistanceLevel: SurveyAssistanceLevel {
+        SurveyAssistanceLevel(storageValue: assistanceLevelRaw)
     }
 
     public var body: some View {
@@ -47,7 +52,7 @@ public struct VisitProgressView: View {
             if !priorityNudges.isEmpty {
                 Section("Priority Nudges") {
                     ForEach(priorityNudges) { nudge in
-                        SurveyNudgeRow(nudge: nudge)
+                        SurveyNudgeRow(nudge: nudge, assistanceLevel: assistanceLevel)
                     }
                 }
             }
@@ -60,6 +65,7 @@ public struct VisitProgressView: View {
                     ForEach(activeNudges) { nudge in
                         SurveyNudgeRow(
                             nudge: nudge,
+                            assistanceLevel: assistanceLevel,
                             onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
                         )
                     }

@@ -1,5 +1,32 @@
 import Foundation
 
+public enum SurveyAssistanceLevel: String, Codable, CaseIterable, Sendable {
+    case expert
+    case experienced
+    case guided
+    case training
+
+    public static let storageKey = "surveyAssistanceLevel"
+    public static let defaultLevel: SurveyAssistanceLevel = .experienced
+
+    public init(storageValue: String?) {
+        self = SurveyAssistanceLevel(rawValue: storageValue ?? "") ?? .experienced
+    }
+
+    public var displayName: String {
+        switch self {
+        case .expert:
+            return "Expert"
+        case .experienced:
+            return "Experienced"
+        case .guided:
+            return "Guided"
+        case .training:
+            return "Training"
+        }
+    }
+}
+
 public enum SurveyNudgeState: String, Codable, CaseIterable, Sendable {
     case suggested
     case ignored
@@ -44,6 +71,7 @@ public struct SurveyNudge: Identifiable, Sendable {
     public let twinArea: TwinArea
     public let title: String
     public let detail: String
+    public let guidance: [SurveyAssistanceLevel: [String]]
     public let state: SurveyNudgeState
     public let isPriority: Bool
     public let allowsDismissal: Bool
@@ -53,6 +81,7 @@ public struct SurveyNudge: Identifiable, Sendable {
         twinArea: TwinArea,
         title: String,
         detail: String,
+        guidance: [SurveyAssistanceLevel: [String]] = [:],
         state: SurveyNudgeState,
         isPriority: Bool = false,
         allowsDismissal: Bool = true
@@ -61,12 +90,17 @@ public struct SurveyNudge: Identifiable, Sendable {
         self.twinArea = twinArea
         self.title = title
         self.detail = detail
+        self.guidance = guidance
         self.state = state
         self.isPriority = isPriority
         self.allowsDismissal = allowsDismissal
     }
 
     public var isActive: Bool { state == .suggested }
+
+    public func guidanceItems(for level: SurveyAssistanceLevel) -> [String] {
+        guidance[level] ?? []
+    }
 }
 
 public enum SurveyNudgeEngine {
@@ -227,6 +261,7 @@ public enum SurveyNudgeEngine {
                     detail: unresolvedRiskCount == 1
                         ? "A captured risk still needs review."
                         : "\(unresolvedRiskCount) captured risks still need review.",
+                    guidance: riskGuidance(),
                     state: .suggested,
                     isPriority: true,
                     allowsDismissal: false
@@ -267,6 +302,7 @@ public enum SurveyNudgeEngine {
             twinArea: twinArea,
             title: title,
             detail: detail,
+            guidance: guidanceForTagTarget(target),
             state: state(for: id, visit: visit, fulfilled: fulfilled)
         )
     }
@@ -284,6 +320,7 @@ public enum SurveyNudgeEngine {
             twinArea: twinArea,
             title: title,
             detail: detail,
+            guidance: guidanceForNoteTarget(noteTag),
             state: state(for: id, visit: visit, fulfilled: hasNote(on: noteTag, in: visit))
         )
     }
@@ -294,6 +331,7 @@ public enum SurveyNudgeEngine {
             twinArea: .home,
             title: "Record a visit voice note",
             detail: "Customer goal captured. Add a visit-level voice note if none exists yet.",
+            guidance: voiceGuidance(),
             state: state(
                 for: .customerGoalVoiceNote,
                 visit: visit,
@@ -323,6 +361,91 @@ public enum SurveyNudgeEngine {
         visit.captureItems.contains {
             $0.tag == tag && !($0.notes?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
         }
+    }
+
+    private static func guidanceForTagTarget(_ target: TagTarget) -> [SurveyAssistanceLevel: [String]] {
+        let targetLabel: String
+        switch target {
+        case let .single(tag):
+            targetLabel = tag.displayName.lowercased()
+        case let .any(tags):
+            targetLabel = tags.map { $0.displayName.lowercased() }.joined(separator: " or ")
+        }
+
+        return [
+            .experienced: [
+                "Check for \(targetLabel) before moving on."
+            ],
+            .guided: [
+                "Locate the \(targetLabel).",
+                "Capture clear evidence.",
+                "If not visible, add a note."
+            ],
+            .training: [
+                "Locate the \(targetLabel).",
+                "Capture clear evidence from more than one angle.",
+                "Record key condition and accessibility in a note.",
+                "If not visible, record why and next best evidence."
+            ]
+        ]
+    }
+
+    private static func guidanceForNoteTarget(_ tag: ObjectTag) -> [SurveyAssistanceLevel: [String]] {
+        let label = tag.displayName.lowercased()
+        return [
+            .experienced: [
+                "Add the key \(label) note if relevant."
+            ],
+            .guided: [
+                "Confirm the \(label) is present.",
+                "Record the important detail in notes.",
+                "Use evidence capture if the note needs visual proof."
+            ],
+            .training: [
+                "Confirm whether the \(label) is present and accessible.",
+                "Record what was observed and any uncertainty.",
+                "Capture supporting evidence when available.",
+                "If missing, record next action for follow-up."
+            ]
+        ]
+    }
+
+    private static func voiceGuidance() -> [SurveyAssistanceLevel: [String]] {
+        [
+            .experienced: [
+                "Capture one short summary voice note for the visit."
+            ],
+            .guided: [
+                "Summarise customer goals.",
+                "Include major system observations.",
+                "Mention any unresolved risks."
+            ],
+            .training: [
+                "State customer goals in plain language.",
+                "Summarise key captures already completed.",
+                "Call out unresolved items needing follow-up.",
+                "Keep it concise and review for clarity."
+            ]
+        ]
+    }
+
+    private static func riskGuidance() -> [SurveyAssistanceLevel: [String]] {
+        [
+            .experienced: [
+                "Review and resolve each risk capture before leaving site."
+            ],
+            .guided: [
+                "Open the risk capture item.",
+                "Confirm severity and context.",
+                "Update status to resolved when complete."
+            ],
+            .training: [
+                "Open each unresolved risk capture item.",
+                "Confirm evidence quality and risk context.",
+                "Document the decision and next action clearly.",
+                "Escalate unresolved high-risk findings."
+            ]
+        ]
     }
 }
 

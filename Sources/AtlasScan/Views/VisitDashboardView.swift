@@ -14,6 +14,7 @@ public struct VisitDashboardView: View {
     @ObservedObject public var store: VisitStore
 
     @State private var visit: Visit
+    @AppStorage(SurveyAssistanceLevel.storageKey) private var assistanceLevelRaw = SurveyAssistanceLevel.defaultLevel.rawValue
     @State private var showProgress = false
     @State private var showNudges = false
     @State private var showEvidence = false
@@ -101,6 +102,10 @@ public struct VisitDashboardView: View {
         }, message: {
             Text(captureInfoMessage ?? "")
         })
+    }
+
+    private var assistanceLevel: SurveyAssistanceLevel {
+        SurveyAssistanceLevel(storageValue: assistanceLevelRaw)
     }
 
     private var heroSection: some View {
@@ -241,11 +246,13 @@ public struct VisitDashboardView: View {
                     if nudge.isActive {
                         SurveyNudgeRow(
                             nudge: nudge,
+                            assistanceLevel: assistanceLevel,
                             onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
                         )
                     } else {
                         SurveyNudgeRow(
                             nudge: nudge,
+                            assistanceLevel: assistanceLevel,
                             onClearState: { clearSurveyNudgeState(nudge.id) }
                         )
                     }
