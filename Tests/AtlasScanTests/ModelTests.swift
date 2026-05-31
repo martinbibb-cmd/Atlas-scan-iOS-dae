@@ -516,6 +516,25 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(ObjectTag.allCases.count, 22)
     }
 
+    // MARK: - RecentObjectTags
+
+    func testRecentObjectTagsMovesMostRecentToFrontWithoutDuplicates() {
+        var recent = RecentObjectTags(tags: [.boiler, .cylinder, .flue])
+
+        recent.record(.cylinder)
+
+        XCTAssertEqual(recent.tags, [.cylinder, .boiler, .flue])
+    }
+
+    func testRecentObjectTagsRespectsMaximumCount() {
+        var recent = RecentObjectTags()
+
+        ObjectTag.allCases.forEach { recent.record($0) }
+
+        XCTAssertEqual(recent.tags.count, RecentObjectTags.maxCount)
+        XCTAssertEqual(recent.tags.first, ObjectTag.allCases.last)
+    }
+
     // MARK: - TwinDrafts
 
     func testSystemTwinDraftEncodeDecode() throws {
