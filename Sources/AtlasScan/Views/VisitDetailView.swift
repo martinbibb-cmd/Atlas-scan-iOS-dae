@@ -29,8 +29,9 @@ public struct VisitDetailView: View {
     @State private var audioPlayer: AVAudioPlayer?
 #endif
 
-    public init(visit: Visit, store: VisitStore) {
+    public init(visit: Visit, store: VisitStore, initialTwinArea: TwinArea = .system) {
         _visit = State(initialValue: visit)
+        _selectedTwinArea = State(initialValue: initialTwinArea)
         self.store = store
     }
 
