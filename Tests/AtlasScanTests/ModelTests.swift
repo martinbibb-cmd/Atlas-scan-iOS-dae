@@ -32,7 +32,10 @@ final class ModelTests: XCTestCase {
             customerName: "Jane Doe",
             addressSummary: "12 Elm Close, Sheffield, S1 1AA",
             captureItems: [boiler],
-            evidenceRecords: [photoEvidence]
+            evidenceRecords: [photoEvidence],
+            surveyNudgeStates: [
+                PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored)
+            ]
         )
         let data = try encoder.encode(visit)
         let decoded = try decoder.decode(Visit.self, from: data)
@@ -50,6 +53,9 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.evidenceRecords.count, 1)
         XCTAssertEqual(decoded.evidenceRecords[0].evidenceType, .photo)
         XCTAssertEqual(decoded.evidenceRecords[0].localUri, photoEvidence.localUri)
+        XCTAssertEqual(decoded.surveyNudgeStates.count, 1)
+        XCTAssertEqual(decoded.surveyNudgeStates[0].nudgeID, .boilerGasMeter)
+        XCTAssertEqual(decoded.surveyNudgeStates[0].state, .ignored)
     }
 
     func testVisitOptionalFieldsNil() throws {
@@ -69,6 +75,26 @@ final class ModelTests: XCTestCase {
 
     func testVisitValidation_blankTitle() {
         XCTAssertFalse(Visit(title: "   ").isValid)
+    }
+
+    func testVisitDecodeWithoutSurveyNudgeStatesDefaultsToEmpty() throws {
+        let visitId = UUID()
+        let json = """
+        {
+          "id": "\(visitId.uuidString)",
+          "title": "Legacy Visit",
+          "createdAt": "1970-01-01T00:00:00Z",
+          "updatedAt": "1970-01-01T00:00:00Z",
+          "status": "draft",
+          "captureItems": [],
+          "evidenceRecords": []
+        }
+        """
+
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(Visit.self, from: Data(json.utf8))
+
+        XCTAssertTrue(decoded.surveyNudgeStates.isEmpty)
     }
 
     func testTwinAreaSummaryGroupsCaptureItemsEvidenceAndNeedsReview() {
@@ -196,6 +222,86 @@ final class ModelTests: XCTestCase {
         )
 
         XCTAssertEqual(visit.visitLevelEvidenceRecords.map(\.id), [secondVisitNote.id, firstVisitNote.id])
+    }
+
+    func testSurveyNudgeEngineGeneratesBoilerAndGoalPromptsWhenTargetsAreMissing() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let customerGoal = CaptureItem(
+            visitId: visitId,
+            twinArea: .home,
+            tag: .customerGoal,
+            status: .complete
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Nudge Generation",
+            captureItems: [boiler, customerGoal]
+        )
+
+        let nudges = SurveyNudgeEngine.activeNudges(for: visit)
+
+        XCTAssertEqual(
+            nudges.map(\.id),
+            [.boilerFlue, .boilerControls, .boilerGasMeter, .boilerCondensate, .customerGoalVoiceNote]
+        )
+    }
+
+    func testSurveyNudgeEngineFulfilsTargetsAndRemovesIgnoredAndNotRequiredFromActiveList() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let flue = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .flue,
+            status: .complete
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Nudge Fulfilment",
+            captureItems: [boiler, flue],
+            surveyNudgeStates: [
+                PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored),
+                PersistedSurveyNudgeState(nudgeID: .boilerCondensate, state: .notRequired)
+            ]
+        )
+
+        let nudges = SurveyNudgeEngine.nudges(for: visit)
+
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerFlue })?.state, .fulfilled)
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerGasMeter })?.state, .ignored)
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerCondensate })?.state, .notRequired)
+        XCTAssertEqual(SurveyNudgeEngine.activeNudges(for: visit).map(\.id), [.boilerControls])
+    }
+
+    func testSurveyNudgeEngineFlagsNeedsReviewRiskAsPriority() {
+        let visitId = UUID()
+        let risk = CaptureItem(
+            visitId: visitId,
+            twinArea: .home,
+            tag: .risk,
+            status: .needsReview
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Risk Priority",
+            captureItems: [risk]
+        )
+
+        let nudges = SurveyNudgeEngine.activeNudges(for: visit)
+
+        XCTAssertEqual(nudges.map(\.id), [.riskNeedsReviewPriority])
+        XCTAssertEqual(nudges.first?.isPriority, true)
     }
 
     func testVisitStatusAllCasesEncodeDecode() throws {
