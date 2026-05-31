@@ -34,8 +34,6 @@ public struct VisitProgressView: View {
                 )
             }
         }
-        .navigationTitle("Survey Progress")
-        .navigationBarTitleDisplayMode(.inline)
     }
 
     // MARK: - Main list
@@ -47,15 +45,8 @@ public struct VisitProgressView: View {
                 areaSectionView(summary.areaSummary(for: area), area: area)
             }
 
-            Section {
-                HStack {
-                    Text("Visit Notes")
-                    Spacer()
-                    Text("\(summary.visitNoteCount)")
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                Text("Visit Notes")
+            Section("Visit Notes") {
+                LabeledContent("Evidence", value: "\(summary.visitNoteCount)")
             }
         }
         .navigationTitle("Survey Progress")
