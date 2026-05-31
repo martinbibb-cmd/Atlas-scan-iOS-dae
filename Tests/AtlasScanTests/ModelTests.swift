@@ -9,11 +9,20 @@ final class ModelTests: XCTestCase {
     // MARK: - Visit
 
     func testVisitEncodeDecode() throws {
+        let boiler = CaptureItem(
+            visitId: UUID(),
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete,
+            spaceLabel: "Utility",
+            notes: "Main boiler"
+        )
         let visit = Visit(
             title: "Survey — 12 Elm Close",
             status: .active,
             customerName: "Jane Doe",
-            addressSummary: "12 Elm Close, Sheffield, S1 1AA"
+            addressSummary: "12 Elm Close, Sheffield, S1 1AA",
+            captureItems: [boiler]
         )
         let data = try encoder.encode(visit)
         let decoded = try decoder.decode(Visit.self, from: data)
@@ -23,6 +32,11 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.status, visit.status)
         XCTAssertEqual(decoded.customerName, visit.customerName)
         XCTAssertEqual(decoded.addressSummary, visit.addressSummary)
+        XCTAssertEqual(decoded.captureItems.count, 1)
+        XCTAssertEqual(decoded.captureItems[0].tag, .boiler)
+        XCTAssertEqual(decoded.captureItems[0].status, .complete)
+        XCTAssertEqual(decoded.captureItems[0].spaceLabel, "Utility")
+        XCTAssertEqual(decoded.captureItems[0].notes, "Main boiler")
     }
 
     func testVisitOptionalFieldsNil() throws {
@@ -32,6 +46,7 @@ final class ModelTests: XCTestCase {
 
         XCTAssertNil(decoded.customerName)
         XCTAssertNil(decoded.addressSummary)
+        XCTAssertTrue(decoded.captureItems.isEmpty)
     }
 
     func testVisitValidation_validTitle() {
