@@ -20,6 +20,7 @@ public struct VisitDetailView: View {
     @State private var editingCaptureItem: CaptureItem?
     @State private var showPhotoCapture = false
     @State private var showVoiceCapture = false
+    @State private var showProgressDrawer = false
     @State private var playbackErrorMessage: String?
     @State private var activeAudioEvidenceId: UUID?
 #if canImport(AVFoundation)
@@ -47,6 +48,13 @@ public struct VisitDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button(isEditing ? "Done" : "Edit") { toggleEdit() }
+            }
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    showProgressDrawer = true
+                } label: {
+                    Label("Progress", systemImage: "chart.bar.doc.horizontal")
+                }
             }
         }
         .sheet(isPresented: $showAddCaptureItem) {
@@ -82,6 +90,16 @@ public struct VisitDetailView: View {
             }
         }
 #endif
+        .sheet(isPresented: $showProgressDrawer) {
+            VisitProgressView(
+                store: store,
+                visitId: visit.id,
+                selectedTwinArea: $selectedTwinArea
+            )
+        }
+        .onChange(of: showProgressDrawer) { isShowing in
+            if !isShowing { syncFromStore() }
+        }
         .onDisappear {
 #if canImport(AVFoundation)
             audioPlayer?.stop()
