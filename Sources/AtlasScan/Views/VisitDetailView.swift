@@ -58,39 +58,6 @@ public struct VisitDetailView: View {
                     Label("Progress", systemImage: "chart.bar.doc.horizontal")
                 }
             }
-
-            @ViewBuilder
-            private var surveyNudgesSection: some View {
-                Section("Survey Nudges") {
-                    if activeSurveyNudges.isEmpty {
-                        Text("No active nudges right now.")
-                            .foregroundStyle(.secondary)
-                    } else {
-                        ForEach(activeSurveyNudges) { nudge in
-                            SurveyNudgeRow(
-                                nudge: nudge,
-                                onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
-                            )
-                        }
-                    }
-                }
-            }
-
-            @ViewBuilder
-            private var resolvedSurveyNudgesSection: some View {
-                if !resolvedSurveyNudges.isEmpty {
-                    Section("Resolved Nudges") {
-                        ForEach(resolvedSurveyNudges) { nudge in
-                            SurveyNudgeRow(
-                                nudge: nudge,
-                                onClearState: {
-                                    clearSurveyNudgeState(nudge.id)
-                                }
-                            )
-                        }
-                    }
-                }
-            }
         }
         .sheet(isPresented: $showAddCaptureItem) {
             CaptureItemEditor(
@@ -301,6 +268,39 @@ public struct VisitDetailView: View {
                             deleteEvidenceRecord(id: record.id)
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var surveyNudgesSection: some View {
+        Section("Survey Nudges") {
+            if activeSurveyNudges.isEmpty {
+                Text("No active nudges right now.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(activeSurveyNudges) { nudge in
+                    SurveyNudgeRow(
+                        nudge: nudge,
+                        onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
+                    )
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var resolvedSurveyNudgesSection: some View {
+        if !resolvedSurveyNudges.isEmpty {
+            Section("Resolved Nudges") {
+                ForEach(resolvedSurveyNudges) { nudge in
+                    SurveyNudgeRow(
+                        nudge: nudge,
+                        onClearState: {
+                            clearSurveyNudgeState(nudge.id)
+                        }
+                    )
                 }
             }
         }
