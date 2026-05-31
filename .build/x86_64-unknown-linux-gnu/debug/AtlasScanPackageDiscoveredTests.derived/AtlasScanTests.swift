@@ -19,7 +19,11 @@ fileprivate extension EvidenceMediaStoreTests {
         ("testSaveAudioDataReusesExistingVisitDirectory", testSaveAudioDataReusesExistingVisitDirectory),
         ("testSaveAudioDataThrowsWhenBaseDirectoryIsAFile", testSaveAudioDataThrowsWhenBaseDirectoryIsAFile),
         ("testSavePhotoDataCreatesDirectoryAndWritesFile", testSavePhotoDataCreatesDirectoryAndWritesFile),
-        ("testSavePhotoDataThrowsWhenBaseDirectoryIsAFile", testSavePhotoDataThrowsWhenBaseDirectoryIsAFile)
+        ("testSavePhotoDataThrowsWhenBaseDirectoryIsAFile", testSavePhotoDataThrowsWhenBaseDirectoryIsAFile),
+        ("testSaveVideoFileCopiesMOVIntoVisitDirectory", testSaveVideoFileCopiesMOVIntoVisitDirectory),
+        ("testSaveVideoFileNormalizesUnsupportedExtensionsToMOV", testSaveVideoFileNormalizesUnsupportedExtensionsToMOV),
+        ("testSaveVideoFilePreservesMP4Extension", testSaveVideoFilePreservesMP4Extension),
+        ("testSaveVideoFileThrowsWhenBaseDirectoryIsAFile", testSaveVideoFileThrowsWhenBaseDirectoryIsAFile)
     ]
 }
 

@@ -99,6 +99,74 @@ final class EvidenceMediaStoreTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
     }
 
+    func testSaveVideoFileCopiesMOVIntoVisitDirectory() throws {
+        let visitId = UUID()
+        let evidenceId = UUID()
+        let sourceURL = baseDirectory.appendingPathComponent("source.mov")
+        let data = Data([0x30, 0x31, 0x32, 0x33])
+        try data.write(to: sourceURL, options: .atomic)
+
+        let relativePath = try EvidenceMediaStore.saveVideoFile(
+            from: sourceURL,
+            visitId: visitId,
+            evidenceId: evidenceId,
+            baseDirectory: baseDirectory
+        )
+
+        XCTAssertEqual(relativePath, "VisitMedia/\(visitId.uuidString)/\(evidenceId.uuidString).mov")
+        let expectedURL = baseDirectory.appendingPathComponent(relativePath)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: expectedURL.path))
+        XCTAssertEqual(try Data(contentsOf: expectedURL), data)
+    }
+
+    func testSaveVideoFilePreservesMP4Extension() throws {
+        let visitId = UUID()
+        let evidenceId = UUID()
+        let sourceURL = baseDirectory.appendingPathComponent("source.mp4")
+        try Data([0x01, 0x02]).write(to: sourceURL, options: .atomic)
+
+        let relativePath = try EvidenceMediaStore.saveVideoFile(
+            from: sourceURL,
+            visitId: visitId,
+            evidenceId: evidenceId,
+            baseDirectory: baseDirectory
+        )
+
+        XCTAssertEqual(relativePath, "VisitMedia/\(visitId.uuidString)/\(evidenceId.uuidString).mp4")
+    }
+
+    func testSaveVideoFileNormalizesUnsupportedExtensionsToMOV() throws {
+        let visitId = UUID()
+        let evidenceId = UUID()
+        let sourceURL = baseDirectory.appendingPathComponent("source.avi")
+        try Data([0xAA, 0xBB]).write(to: sourceURL, options: .atomic)
+
+        let relativePath = try EvidenceMediaStore.saveVideoFile(
+            from: sourceURL,
+            visitId: visitId,
+            evidenceId: evidenceId,
+            baseDirectory: baseDirectory
+        )
+
+        XCTAssertEqual(relativePath, "VisitMedia/\(visitId.uuidString)/\(evidenceId.uuidString).mov")
+    }
+
+    func testSaveVideoFileThrowsWhenBaseDirectoryIsAFile() throws {
+        let nonDirectoryURL = baseDirectory.appendingPathComponent("not-a-directory")
+        try Data("x".utf8).write(to: nonDirectoryURL, options: .atomic)
+        let sourceURL = baseDirectory.appendingPathComponent("source.mov")
+        try Data([0x01]).write(to: sourceURL, options: .atomic)
+
+        XCTAssertThrowsError(
+            try EvidenceMediaStore.saveVideoFile(
+                from: sourceURL,
+                visitId: UUID(),
+                evidenceId: UUID(),
+                baseDirectory: nonDirectoryURL
+            )
+        )
+    }
+
     func testResolveURLUsesBaseDirectoryForRelativePath() {
         let resolved = EvidenceMediaStore.resolveURL(
             for: "VisitMedia/visit-a/evidence.jpg",

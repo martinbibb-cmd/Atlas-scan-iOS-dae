@@ -6,6 +6,9 @@ import UIKit
 #if canImport(AVFoundation)
 import AVFoundation
 #endif
+#if canImport(AVKit)
+import AVKit
+#endif
 
 /// Shows and edits a single visit's metadata and lets the user change its status.
 public struct VisitDetailView: View {
@@ -25,6 +28,7 @@ public struct VisitDetailView: View {
     @State private var exportErrorMessage: String?
     @State private var exportedPackageURL: URL?
     @State private var activeAudioEvidenceId: UUID?
+    @State private var selectedVideoEvidence: EvidenceRecord?
 #if canImport(AVFoundation)
     @State private var audioPlayer: AVAudioPlayer?
 #endif
@@ -122,6 +126,16 @@ public struct VisitDetailView: View {
         }, message: {
             Text(exportErrorMessage ?? "Unknown export error.")
         })
+        .sheet(item: $selectedVideoEvidence) { evidence in
+#if canImport(AVKit)
+            VideoEvidencePlaybackView(record: evidence)
+#else
+            VStack {
+                Text("Video playback is not supported on this platform.")
+            }
+            .padding()
+#endif
+        }
     }
 
     private var selectedTwinSummary: TwinAreaSummary {
@@ -194,7 +208,7 @@ public struct VisitDetailView: View {
                 showAddCaptureItem = true
             }
 #if canImport(UIKit) && canImport(AVFoundation)
-            Button("Capture Photo") {
+            Button("Capture Photo or Video") {
                 showPhotoCapture = true
             }
             Button("Record Voice Note") {
@@ -233,7 +247,8 @@ public struct VisitDetailView: View {
                                     captureItems: visit.captureItems,
                                     showsCaptureItemName: false,
                                     isPlaying: activeAudioEvidenceId == record.id,
-                                    onTogglePlayback: { toggleVoicePlayback(for: record) }
+                                    onTogglePlayback: { toggleVoicePlayback(for: record) },
+                                    onOpenVideo: { selectedVideoEvidence = record }
                                 )
                                 .padding(.leading, 12)
                                 .swipeActions {
@@ -269,7 +284,8 @@ public struct VisitDetailView: View {
                         captureItems: visit.captureItems,
                         showsCaptureItemName: false,
                         isPlaying: activeAudioEvidenceId == record.id,
-                        onTogglePlayback: { toggleVoicePlayback(for: record) }
+                        onTogglePlayback: { toggleVoicePlayback(for: record) },
+                        onOpenVideo: { selectedVideoEvidence = record }
                     )
                     .swipeActions {
                         Button("Delete", role: .destructive) {
@@ -525,6 +541,7 @@ private struct EvidenceRow: View {
     let showsCaptureItemName: Bool
     let isPlaying: Bool
     let onTogglePlayback: () -> Void
+    let onOpenVideo: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -573,9 +590,11 @@ private struct EvidenceRow: View {
             Spacer()
 
             if record.evidenceType == .voice {
-                Button(isPlaying ? "Stop" : "Play") {
-                    onTogglePlayback()
-                }
+                Button(isPlaying ? "Stop" : "Play") { onTogglePlayback() }
+            }
+
+            if record.evidenceType == .video {
+                Button("Play") { onOpenVideo() }
             }
         }
         .padding(.vertical, 2)
@@ -644,6 +663,28 @@ private struct EvidenceRow: View {
         return item.tag.displayName
     }
 }
+
+#if canImport(AVKit)
+private struct VideoEvidencePlaybackView: View {
+    let record: EvidenceRecord
+
+    var body: some View {
+        NavigationStack {
+            if let localUri = record.localUri {
+                let url = EvidenceMediaStore.resolveURL(for: localUri)
+                VideoPlayer(player: AVPlayer(url: url))
+                    .frame(minHeight: 280)
+                    .navigationTitle("Video Evidence")
+                    .navigationBarTitleDisplayMode(.inline)
+            } else {
+                Text("Video file is unavailable.")
+                    .foregroundStyle(.secondary)
+                    .padding()
+            }
+        }
+    }
+}
+#endif
 
 private struct CaptureItemEditor: View {
 
