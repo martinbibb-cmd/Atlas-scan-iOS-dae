@@ -22,6 +22,7 @@ public struct VisitDashboardView: View {
     @State private var showPhotoCapture = false
     @State private var showVoiceCapture = false
     @State private var showManualCapture = false
+    @State private var showFieldIssueLogger = false
     @State private var exportPreviewPackage: AtlasVisitPackage?
     @State private var exportedPackageURL: URL?
     @State private var exportErrorMessage: String?
@@ -39,6 +40,7 @@ public struct VisitDashboardView: View {
                 surveyHealthBanner
                 twinSummarySection
                 captureSection
+                fieldTestSection
                 quickActionsSection
                 recentActivitySection
             }
@@ -80,6 +82,11 @@ public struct VisitDashboardView: View {
         .sheet(isPresented: $showManualCapture) {
             ManualCaptureItemSheet(visitId: visit.id) {
                 addCaptureItem($0)
+            }
+        }
+        .sheet(isPresented: $showFieldIssueLogger) {
+            FieldTestIssueLoggerSheet(visitId: visit.id) { note in
+                addFieldTestNote(note)
             }
         }
         .confirmationDialog("Capture Evidence", isPresented: $showCaptureOptions, titleVisibility: .visible) {
@@ -209,6 +216,53 @@ public struct VisitDashboardView: View {
                 }
                 quickActionButton("Export", systemImage: "square.and.arrow.up") {
                     previewVisitPackageExport()
+                }
+            }
+
+            private var fieldTestSection: some View {
+                VStack(alignment: .leading, spacing: 10) {
+                    Toggle("Field Test Mode", isOn: fieldTestModeBinding)
+                        .font(.headline)
+
+                    if visit.fieldTestModeEnabled {
+                        Text("Checklist")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                        ForEach(FieldTestIssueCategory.allCases, id: \.self) { category in
+                            HStack {
+                                Image(systemName: issueCount(for: category) > 0 ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(issueCount(for: category) > 0 ? Color.green : Color.secondary)
+                                Text(category.displayName)
+                                    .font(.caption)
+                                Spacer()
+                                if issueCount(for: category) > 0 {
+                                    Text("\(issueCount(for: category))")
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+
+                        Button {
+                            showFieldIssueLogger = true
+                        } label: {
+                            Label("Log Issue", systemImage: "exclamationmark.bubble")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+
+                    if visit.fieldTestNotes.isEmpty {
+                        Text("No field issues logged yet.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text("\(visit.fieldTestNotes.count) field issues logged")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
             }
             if let exportedPackageURL {
@@ -394,6 +448,11 @@ public struct VisitDashboardView: View {
         persistVisit()
     }
 
+    private func addFieldTestNote(_ note: FieldTestNote) {
+        visit.fieldTestNotes.append(note)
+        persistVisit()
+    }
+
     private func persistVisit() {
         visit.updatedAt = Date()
         store.update(visit)
@@ -413,6 +472,16 @@ public struct VisitDashboardView: View {
     private func previewVisitPackageExport() {
         let exporter = AtlasVisitPackageExporter()
         exportPreviewPackage = exporter.buildPackage(for: visit)
+    }
+
+    private var fieldTestModeBinding: Binding<Bool> {
+        Binding(
+            get: { visit.fieldTestModeEnabled },
+            set: {
+                visit.fieldTestModeEnabled = $0
+                persistVisit()
+            }
+        )
     }
 
     private func confirmVisitPackageExport() {
@@ -453,6 +522,10 @@ public struct VisitDashboardView: View {
             get: { captureInfoMessage != nil },
             set: { if !$0 { captureInfoMessage = nil } }
         )
+    }
+
+    private func issueCount(for category: FieldTestIssueCategory) -> Int {
+        visit.fieldTestNotes.filter { $0.category == category }.count
     }
 }
 

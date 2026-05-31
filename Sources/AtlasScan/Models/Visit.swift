@@ -23,6 +23,8 @@ public struct Visit: Identifiable, Codable, Sendable {
     public var captureItems: [CaptureItem]
     public var evidenceRecords: [EvidenceRecord]
     public var surveyNudgeStates: [PersistedSurveyNudgeState]
+    public var fieldTestModeEnabled: Bool
+    public var fieldTestNotes: [FieldTestNote]
 
     public init(
         id: UUID = UUID(),
@@ -34,7 +36,9 @@ public struct Visit: Identifiable, Codable, Sendable {
         addressSummary: String? = nil,
         captureItems: [CaptureItem] = [],
         evidenceRecords: [EvidenceRecord] = [],
-        surveyNudgeStates: [PersistedSurveyNudgeState] = []
+        surveyNudgeStates: [PersistedSurveyNudgeState] = [],
+        fieldTestModeEnabled: Bool = false,
+        fieldTestNotes: [FieldTestNote] = []
     ) {
         self.id = id
         self.title = title
@@ -46,6 +50,8 @@ public struct Visit: Identifiable, Codable, Sendable {
         self.captureItems = captureItems
         self.evidenceRecords = evidenceRecords
         self.surveyNudgeStates = surveyNudgeStates
+        self.fieldTestModeEnabled = fieldTestModeEnabled
+        self.fieldTestNotes = fieldTestNotes
     }
 
     /// Returns `true` when the visit has a non-blank title.
@@ -64,6 +70,8 @@ public struct Visit: Identifiable, Codable, Sendable {
         case captureItems
         case evidenceRecords
         case surveyNudgeStates
+        case fieldTestModeEnabled
+        case fieldTestNotes
     }
 
     public init(from decoder: Decoder) throws {
@@ -78,6 +86,8 @@ public struct Visit: Identifiable, Codable, Sendable {
         captureItems = try container.decodeIfPresent([CaptureItem].self, forKey: .captureItems) ?? []
         evidenceRecords = try container.decodeIfPresent([EvidenceRecord].self, forKey: .evidenceRecords) ?? []
         surveyNudgeStates = try container.decodeIfPresent([PersistedSurveyNudgeState].self, forKey: .surveyNudgeStates) ?? []
+        fieldTestModeEnabled = try container.decodeIfPresent(Bool.self, forKey: .fieldTestModeEnabled) ?? false
+        fieldTestNotes = try container.decodeIfPresent([FieldTestNote].self, forKey: .fieldTestNotes) ?? []
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -92,5 +102,7 @@ public struct Visit: Identifiable, Codable, Sendable {
         try container.encode(captureItems, forKey: .captureItems)
         try container.encode(evidenceRecords, forKey: .evidenceRecords)
         try container.encode(surveyNudgeStates, forKey: .surveyNudgeStates)
+        try container.encode(fieldTestModeEnabled, forKey: .fieldTestModeEnabled)
+        try container.encode(fieldTestNotes, forKey: .fieldTestNotes)
     }
 }

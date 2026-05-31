@@ -60,6 +60,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
     public let progressSummary: VisitProgressSummary
     public let mediaManifest: [AtlasVisitMediaManifestEntry]
     public let missingMediaWarnings: [String]
+    public let fieldTestNotes: [FieldTestNote]
     public let exportSummary: AtlasVisitPackageExportSummary
 
     public init(
@@ -74,6 +75,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
         progressSummary: VisitProgressSummary,
         mediaManifest: [AtlasVisitMediaManifestEntry],
         missingMediaWarnings: [String] = [],
+        fieldTestNotes: [FieldTestNote] = [],
         exportSummary: AtlasVisitPackageExportSummary? = nil
     ) {
         self.packageId = packageId
@@ -87,6 +89,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
         self.progressSummary = progressSummary
         self.mediaManifest = mediaManifest
         self.missingMediaWarnings = missingMediaWarnings
+        self.fieldTestNotes = fieldTestNotes
         self.exportSummary = exportSummary ?? AtlasVisitPackageExportSummary(
             captureItemCount: captureItems.count,
             evidenceCount: evidenceRecords.count,
@@ -110,6 +113,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
         case progressSummary
         case mediaManifest
         case missingMediaWarnings
+        case fieldTestNotes
         case exportSummary
     }
 
@@ -126,6 +130,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
         let progressSummary = try container.decode(VisitProgressSummary.self, forKey: .progressSummary)
         let mediaManifest = try container.decode([AtlasVisitMediaManifestEntry].self, forKey: .mediaManifest)
         let missingMediaWarnings = try container.decodeIfPresent([String].self, forKey: .missingMediaWarnings) ?? []
+        let fieldTestNotes = try container.decodeIfPresent([FieldTestNote].self, forKey: .fieldTestNotes) ?? []
         let exportSummary = try container.decodeIfPresent(AtlasVisitPackageExportSummary.self, forKey: .exportSummary)
 
         self.init(
@@ -140,6 +145,7 @@ public struct AtlasVisitPackage: Codable, Sendable, Identifiable {
             progressSummary: progressSummary,
             mediaManifest: mediaManifest,
             missingMediaWarnings: missingMediaWarnings,
+            fieldTestNotes: fieldTestNotes,
             exportSummary: exportSummary
         )
     }

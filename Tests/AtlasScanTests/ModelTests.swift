@@ -35,6 +35,16 @@ final class ModelTests: XCTestCase {
             evidenceRecords: [photoEvidence],
             surveyNudgeStates: [
                 PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored)
+            ],
+            fieldTestModeEnabled: true,
+            fieldTestNotes: [
+                FieldTestNote(
+                    category: .captureFriction,
+                    details: "Capture froze after first photo.",
+                    photoLocalUri: "VisitMedia/\(visitId.uuidString)/field-photo.jpg",
+                    voiceLocalUri: "VisitMedia/\(visitId.uuidString)/field-note.m4a",
+                    voiceDurationSeconds: 2.0
+                )
             ]
         )
         let data = try encoder.encode(visit)
@@ -56,6 +66,12 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.surveyNudgeStates.count, 1)
         XCTAssertEqual(decoded.surveyNudgeStates[0].nudgeID, .boilerGasMeter)
         XCTAssertEqual(decoded.surveyNudgeStates[0].state, .ignored)
+        XCTAssertTrue(decoded.fieldTestModeEnabled)
+        XCTAssertEqual(decoded.fieldTestNotes.count, 1)
+        XCTAssertEqual(decoded.fieldTestNotes[0].category, .captureFriction)
+        XCTAssertEqual(decoded.fieldTestNotes[0].details, "Capture froze after first photo.")
+        XCTAssertEqual(decoded.fieldTestNotes[0].photoLocalUri, "VisitMedia/\(visitId.uuidString)/field-photo.jpg")
+        XCTAssertEqual(decoded.fieldTestNotes[0].voiceLocalUri, "VisitMedia/\(visitId.uuidString)/field-note.m4a")
     }
 
     func testVisitOptionalFieldsNil() throws {
@@ -95,6 +111,8 @@ final class ModelTests: XCTestCase {
         let decoded = try decoder.decode(Visit.self, from: Data(json.utf8))
 
         XCTAssertTrue(decoded.surveyNudgeStates.isEmpty)
+        XCTAssertFalse(decoded.fieldTestModeEnabled)
+        XCTAssertTrue(decoded.fieldTestNotes.isEmpty)
     }
 
     func testTwinAreaSummaryGroupsCaptureItemsEvidenceAndNeedsReview() {
