@@ -272,6 +272,8 @@ public struct VisitDetailView: View {
             Button("Export Visit Package") {
                 exportVisitPackage()
             }
+            .accessibilityLabel("Export visit package")
+            .accessibilityHint("Creates a JSON export package for this visit and marks it as exported.")
             if let exportedPackageURL {
                 ShareLink(item: exportedPackageURL) {
                     Label("Share Exported Package", systemImage: "square.and.arrow.up")
