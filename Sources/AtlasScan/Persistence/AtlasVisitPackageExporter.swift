@@ -49,7 +49,7 @@ public struct AtlasVisitPackageExporter {
             evidenceRecords: visit.evidenceRecords,
             surveyNudgeStates: Dictionary(
                 uniqueKeysWithValues: visit.surveyNudgeStates.map {
-                    ($0.nudgeID.rawValue, $0.state == .ignored)
+                    ($0.nudgeID.rawValue, $0.state)
                 }
             ),
             progressSummary: visit.progressSummary,

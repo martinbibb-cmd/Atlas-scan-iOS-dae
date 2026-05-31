@@ -34,7 +34,7 @@ public struct AtlasVisitPackage: Codable, Sendable {
     public let visit: Visit
     public let captureItems: [CaptureItem]
     public let evidenceRecords: [EvidenceRecord]
-    public let surveyNudgeStates: [String: Bool]
+    public let surveyNudgeStates: [String: SurveyNudgeState]
     public let progressSummary: VisitProgressSummary
     public let mediaManifest: [AtlasVisitMediaManifestEntry]
 
@@ -46,7 +46,7 @@ public struct AtlasVisitPackage: Codable, Sendable {
         visit: Visit,
         captureItems: [CaptureItem],
         evidenceRecords: [EvidenceRecord],
-        surveyNudgeStates: [String: Bool] = [:],
+        surveyNudgeStates: [String: SurveyNudgeState] = [:],
         progressSummary: VisitProgressSummary,
         mediaManifest: [AtlasVisitMediaManifestEntry]
     ) {
