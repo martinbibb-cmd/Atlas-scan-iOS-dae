@@ -2,6 +2,13 @@
   "": {
     "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/primary.swiftdeps"
   },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/AtlasVisitPackageExporterTests.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.dia"
+  },
   "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/EvidenceMediaStoreTests.swift": {
     "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.d",
     "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.swift.o",

@@ -28,6 +28,10 @@
       "inputs" : [
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift"
         },
         {
@@ -49,6 +53,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/VisitTwinGrouping.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/AtlasVisitPackageExporter.swift"
         },
         {
           "kind" : "file",
@@ -95,12 +103,14 @@
       "moduleName" : "AtlasScan",
       "moduleOutputPath" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/Modules/AtlasScan.swiftmodule",
       "objects" : [
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackage.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CaptureItem.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceRecord.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/ObjectTag.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/TwinDrafts.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/Visit.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitTwinGrouping.swift.o",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackageExporter.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceMediaStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o",
@@ -148,6 +158,10 @@
       "outputs" : [
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackage.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CaptureItem.swift.o"
         },
         {
@@ -169,6 +183,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitTwinGrouping.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackageExporter.swift.o"
         },
         {
           "kind" : "file",
@@ -209,12 +227,14 @@
       ],
       "prepareForIndexing" : false,
       "sources" : [
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/EvidenceRecord.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/TwinDrafts.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/Visit.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/VisitTwinGrouping.swift",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/AtlasVisitPackageExporter.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
@@ -408,6 +428,10 @@
       "inputs" : [
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/AtlasVisitPackageExporterTests.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/EvidenceMediaStoreTests.swift"
         },
         {
@@ -435,6 +459,7 @@
       "moduleName" : "AtlasScanTests",
       "moduleOutputPath" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/Modules/AtlasScanTests.swiftmodule",
       "objects" : [
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/ModelTests.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/VisitStoreTests.swift.o"
@@ -476,6 +501,10 @@
       "outputs" : [
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.swift.o"
         },
         {
@@ -493,6 +522,7 @@
       ],
       "prepareForIndexing" : false,
       "sources" : [
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/AtlasVisitPackageExporterTests.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/EvidenceMediaStoreTests.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/ModelTests.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/VisitStoreTests.swift"
@@ -512,12 +542,14 @@
       "-package-name",
       "atlas_scan_ios_dae",
       "-c",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/EvidenceRecord.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/ObjectTag.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/TwinDrafts.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/Visit.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/VisitTwinGrouping.swift",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/AtlasVisitPackageExporter.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
@@ -661,6 +693,7 @@
       "-package-name",
       "atlas_scan_ios_dae",
       "-c",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/AtlasVisitPackageExporterTests.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/EvidenceMediaStoreTests.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/ModelTests.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/VisitStoreTests.swift",
@@ -723,6 +756,10 @@
       "inputs" : [
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.swift.o"
         },
         {
@@ -777,6 +814,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/AtlasVisitPackage.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/CaptureItem.swift"
         },
         {
@@ -798,6 +839,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Models/VisitTwinGrouping.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/AtlasVisitPackageExporter.swift"
         },
         {
           "kind" : "file",
@@ -876,6 +921,14 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasScan.swiftmodule.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackage.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/AtlasVisitPackageExporter.swift.o"
         },
         {
           "kind" : "file",
@@ -959,6 +1012,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/AtlasVisitPackageExporterTests.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanTests.build/EvidenceMediaStoreTests.swift.o"
         },
         {
@@ -978,6 +1035,10 @@
         {
           "kind" : "virtual",
           "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Tests/AtlasScanTests/AtlasVisitPackageExporterTests.swift"
         },
         {
           "kind" : "file",
