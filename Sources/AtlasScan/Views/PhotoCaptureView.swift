@@ -30,7 +30,7 @@ public struct PhotoCaptureView: View {
         preferredTwinArea: TwinArea? = nil
     ) {
         let resolvedTwinArea = preferredTwinArea ?? visit.captureItems.first?.twinArea ?? .system
-        let initialTag = resolvedTwinArea.defaultObjectTag
+        let defaultTag = resolvedTwinArea.defaultObjectTag
         self.visitId = visit.id
         self.preferredTwinArea = resolvedTwinArea
         self.onCapture = onCapture
@@ -38,8 +38,8 @@ public struct PhotoCaptureView: View {
         _selectedCaptureItemId = State(
             initialValue: visit.captureItems.first(where: { $0.twinArea == resolvedTwinArea })?.id ?? visit.captureItems.first?.id
         )
-        _selectedTag = State(initialValue: initialTag)
-        _selectedTwinArea = State(initialValue: initialTag.defaultTwinArea)
+        _selectedTag = State(initialValue: defaultTag)
+        _selectedTwinArea = State(initialValue: defaultTag.defaultTwinArea)
     }
 
     public var body: some View {
@@ -74,8 +74,8 @@ public struct PhotoCaptureView: View {
                 selectedTwinArea: $selectedTwinArea,
                 selectedStatus: $selectedStatus,
                 spaceLabel: $spaceLabel,
-                onRetake: retakePhoto,
-                onDiscard: discardPhoto,
+                onRetake: clearPendingCapture,
+                onDiscard: clearPendingCapture,
                 onSave: saveCapturedPhoto
             )
         }
@@ -256,14 +256,6 @@ public struct PhotoCaptureView: View {
         captureItems.append(newItem)
         selectedCaptureItemId = newItem.id
         return newItem
-    }
-
-    private func retakePhoto() {
-        clearPendingCapture()
-    }
-
-    private func discardPhoto() {
-        clearPendingCapture()
     }
 
     private func clearPendingCapture() {
