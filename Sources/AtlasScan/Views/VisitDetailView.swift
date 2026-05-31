@@ -52,7 +52,7 @@ public struct VisitDetailView: View {
         .sheet(isPresented: $showAddCaptureItem) {
             CaptureItemEditor(
                 visitId: visit.id,
-                initialTag: defaultTag(for: selectedTwinArea),
+                initialTag: selectedTwinArea.defaultObjectTag,
                 initialTwinArea: selectedTwinArea,
                 initialStatus: .unknown,
                 initialSpaceLabel: nil,
@@ -369,17 +369,6 @@ public struct VisitDetailView: View {
 #endif
     }
 
-    private func defaultTag(for area: TwinArea) -> ObjectTag {
-        switch area {
-        case .system:
-            return .boiler
-        case .house:
-            return .sink
-        case .home:
-            return .customerGoal
-        }
-    }
-
     private var playbackErrorPresented: Binding<Bool> {
         Binding(
             get: { playbackErrorMessage != nil },
@@ -667,19 +656,6 @@ private struct CaptureItemEditor: View {
         }
         onSave(item)
         dismiss()
-    }
-}
-
-private extension TwinArea {
-    var displayName: String {
-        switch self {
-        case .system:
-            return "System"
-        case .house:
-            return "House"
-        case .home:
-            return "Home"
-        }
     }
 }
 

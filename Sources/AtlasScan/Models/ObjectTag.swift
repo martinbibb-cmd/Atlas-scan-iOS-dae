@@ -78,3 +78,27 @@ public enum ObjectTag: String, Codable, CaseIterable, Sendable {
         }
     }
 }
+
+public extension TwinArea {
+    var displayName: String {
+        switch self {
+        case .system:
+            return "System"
+        case .house:
+            return "House"
+        case .home:
+            return "Home"
+        }
+    }
+
+    var defaultObjectTag: ObjectTag {
+        switch self {
+        case .system:
+            return .boiler
+        case .house:
+            return .sink
+        case .home:
+            return .customerGoal
+        }
+    }
+}

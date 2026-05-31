@@ -232,15 +232,7 @@ private struct CaptureItemQuickCreateView: View {
         self.initialTwinArea = initialTwinArea
         self.onSave = onSave
 
-        let initialTag: ObjectTag
-        switch initialTwinArea {
-        case .system:
-            initialTag = .boiler
-        case .house:
-            initialTag = .sink
-        case .home:
-            initialTag = .customerGoal
-        }
+        let initialTag = initialTwinArea.defaultObjectTag
 
         _tag = State(initialValue: initialTag)
         _twinArea = State(initialValue: initialTwinArea)
@@ -258,7 +250,7 @@ private struct CaptureItemQuickCreateView: View {
                     }
                     Picker("Twin Area", selection: $twinArea) {
                         ForEach(TwinArea.allCases, id: \.self) { area in
-                            Text(twinAreaDisplayName(area)).tag(area)
+                            Text(area.displayName).tag(area)
                         }
                     }
                 }
@@ -298,17 +290,6 @@ private struct CaptureItemQuickCreateView: View {
         .onChange(of: twinArea) { newTwinArea in
             hasManualTwinAreaOverride = newTwinArea != tag.defaultTwinArea
         }
-    }
-}
-
-private func twinAreaDisplayName(_ area: TwinArea) -> String {
-    switch area {
-    case .system:
-        return "System"
-    case .house:
-        return "House"
-    case .home:
-        return "Home"
     }
 }
 
