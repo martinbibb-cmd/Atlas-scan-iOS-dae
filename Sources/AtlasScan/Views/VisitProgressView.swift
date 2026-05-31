@@ -40,28 +40,33 @@ public struct VisitProgressView: View {
 
     private func progressList(for visit: Visit) -> some View {
         let summary = visit.progressSummary
-        let nudges = SurveyNudgeEngine.nudges(for: visit)
-        let priorityNudges = nudges.filter { $0.isPriority && $0.isActive }
-        let activeNudges = nudges.filter { !$0.isPriority && $0.isActive }
+        let moduleSections = SurveyNudgeEngine.moduleSections(for: visit)
         return List {
-            if !priorityNudges.isEmpty {
-                Section("Priority Nudges") {
-                    ForEach(priorityNudges) { nudge in
-                        SurveyNudgeRow(nudge: nudge)
-                    }
-                }
-            }
-
-            Section("Survey Nudges") {
-                if activeNudges.isEmpty {
-                    Text("No active nudges right now.")
+            Section("Survey Modules") {
+                if moduleSections.isEmpty {
+                    Text("No survey nudges right now.")
                         .foregroundStyle(.secondary)
                 } else {
-                    ForEach(activeNudges) { nudge in
-                        SurveyNudgeRow(
-                            nudge: nudge,
-                            onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
-                        )
+                    ForEach(moduleSections) { section in
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(section.module.displayName)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                            Text("\(section.resolvedCount) resolved • \(section.missingCount) missing")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            ForEach(section.nudges) { nudge in
+                                if nudge.isActive {
+                                    SurveyNudgeRow(
+                                        nudge: nudge,
+                                        onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
+                                    )
+                                } else {
+                                    SurveyNudgeRow(nudge: nudge)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
                     }
                 }
             }

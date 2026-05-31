@@ -304,6 +304,72 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(nudges.first?.isPriority, true)
     }
 
+    func testSurveyNudgeEngineAssignsModulesToGeneratedNudges() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let consumerUnit = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .consumerUnit,
+            status: .complete
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Nudge Modules",
+            captureItems: [boiler, consumerUnit]
+        )
+
+        let nudges = SurveyNudgeEngine.nudges(for: visit)
+
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerFlue })?.module, .heatSource)
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerControls })?.module, .controls)
+        XCTAssertEqual(nudges.first(where: { $0.id == .boilerGasMeter })?.module, .gas)
+        XCTAssertEqual(nudges.first(where: { $0.id == .consumerUnitEarthingNote })?.module, .electrical)
+    }
+
+    func testSurveyNudgeEngineBuildsOrderedModuleSectionsWithResolvedAndMissingCounts() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let flue = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .flue,
+            status: .complete
+        )
+        let consumerUnit = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .consumerUnit,
+            status: .complete
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Module Sections",
+            captureItems: [boiler, flue, consumerUnit],
+            surveyNudgeStates: [
+                PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored)
+            ]
+        )
+
+        let sections = SurveyNudgeEngine.moduleSections(for: visit)
+
+        XCTAssertEqual(sections.map(\.module), [.heatSource, .controls, .gas, .electrical])
+        XCTAssertEqual(sections.first(where: { $0.module == .heatSource })?.resolvedCount, 1)
+        XCTAssertEqual(sections.first(where: { $0.module == .heatSource })?.missingCount, 1)
+        XCTAssertEqual(sections.first(where: { $0.module == .gas })?.resolvedCount, 1)
+        XCTAssertEqual(sections.first(where: { $0.module == .gas })?.missingCount, 0)
+    }
+
     func testVisitStatusAllCasesEncodeDecode() throws {
         for status in VisitStatus.allCases {
             let data = try encoder.encode(status)
