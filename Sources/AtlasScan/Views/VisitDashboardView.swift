@@ -264,16 +264,16 @@ public struct VisitDashboardView: View {
                 Button("Done") { showNudges = false }
             }
         }
+    }
 
-        private func nudgeModuleSummaryRow(_ section: SurveyModuleNudgeSection) -> some View {
-            HStack(spacing: 12) {
-                Text("\(section.resolvedCount) resolved")
-                Text("\(section.missingCount) missing")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-            .textCase(nil)
+    private func nudgeModuleSummaryRow(_ section: SurveyModuleNudgeSection) -> some View {
+        HStack(spacing: 12) {
+            Text("\(section.resolvedCount) resolved")
+            Text("\(section.missingCount) missing")
         }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .textCase(nil)
     }
 
     private var evidenceList: some View {
