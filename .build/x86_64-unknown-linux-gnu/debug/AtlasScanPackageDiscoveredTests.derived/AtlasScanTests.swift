@@ -36,9 +36,30 @@ fileprivate extension ModelTests {
         ("testVisitValidation_validTitle", testVisitValidation_validTitle)
     ]
 }
+
+fileprivate extension VisitStoreTests {
+    @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
+    static nonisolated(unsafe) let __allTests__VisitStoreTests = [
+        ("testAddVisitAppearsInMemory", testAddVisitAppearsInMemory),
+        ("testAddVisitPersistsToDisk", testAddVisitPersistsToDisk),
+        ("testDeleteVisitPersistsToDisk", testDeleteVisitPersistsToDisk),
+        ("testDeleteVisitRemovesFromMemory", testDeleteVisitRemovesFromMemory),
+        ("testEmptyStoreWhenNoFileExists", testEmptyStoreWhenNoFileExists),
+        ("testMarkActiveSetsActiveStatus", testMarkActiveSetsActiveStatus),
+        ("testMarkCompletedUpdatesStatus", testMarkCompletedUpdatesStatus),
+        ("testMarkCompletedUpdatesUpdatedAt", testMarkCompletedUpdatesUpdatedAt),
+        ("testMultipleVisitsPersistInOrder", testMultipleVisitsPersistInOrder),
+        ("testNilOptionalFieldsRoundTrip", testNilOptionalFieldsRoundTrip),
+        ("testStatusTransitionsPersistToDisk", testStatusTransitionsPersistToDisk),
+        ("testUpdateUnknownIdIsNoOp", testUpdateUnknownIdIsNoOp),
+        ("testUpdateVisitChangesTitle", testUpdateVisitChangesTitle),
+        ("testUpdateVisitPersistsToDisk", testUpdateVisitPersistsToDisk)
+    ]
+}
 @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
 func __AtlasScanTests__allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(ModelTests.__allTests__ModelTests)
+        testCase(ModelTests.__allTests__ModelTests),
+        testCase(VisitStoreTests.__allTests__VisitStoreTests)
     ]
 }

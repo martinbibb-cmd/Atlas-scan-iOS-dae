@@ -323,6 +323,7 @@ If not, Atlas Scan has failed regardless of technical sophistication.
 |----|-------|--------|
 | PR 1 | Repository foundation & README | ✅ Merged |
 | PR 2 | Core local survey data model | ✅ Data-model only — no UI, no camera, no voice, no ARKit, no recommendations, no pricing, no Mind logic. Models: `Visit`, `CaptureItem`, `EvidenceRecord`, `ObjectTag`, `TwinDrafts`. Codable + Identifiable. 30 unit tests passing. |
+| PR 3 | Create / Resume Visit | ✅ Local visit management — `VisitStore` (JSON file persistence), `VisitListView`, `VisitDetailView`, `CreateVisitSheet`, `AtlasScanApp` entry point. 44 unit tests passing (14 new persistence round-trip tests). No camera, voice, ARKit, recommendations, pricing, or Mind logic. |
 
 ---
 

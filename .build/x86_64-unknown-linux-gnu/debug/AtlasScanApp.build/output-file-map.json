@@ -1,0 +1,12 @@
+{
+  "": {
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/primary.swiftdeps"
+  },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScanApp/AtlasScanApp.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/AtlasScanApp.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/AtlasScanApp.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/AtlasScanApp~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/AtlasScanApp.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanApp.build/AtlasScanApp.dia"
+  }
+}
