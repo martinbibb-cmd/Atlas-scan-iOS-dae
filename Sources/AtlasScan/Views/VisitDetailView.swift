@@ -151,7 +151,7 @@ public struct VisitDetailView: View {
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(photoEvidenceRecords) { record in
-                    EvidenceRow(record: record)
+                    EvidenceRow(record: record, captureItems: visit.captureItems)
                 }
             }
         }
@@ -315,6 +315,7 @@ private struct CaptureItemEditor: View {
     private struct EvidenceRow: View {
 
         let record: EvidenceRecord
+        let captureItems: [CaptureItem]
 
         var body: some View {
             HStack(spacing: 12) {
@@ -335,8 +336,8 @@ private struct CaptureItemEditor: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Photo")
                         .font(.headline)
-                    if let captureItemId = record.captureItemId {
-                        Text("Capture Item: \(captureItemId.uuidString)")
+                    if let captureItemName = captureItemDisplayName {
+                        Text("Capture Item: \(captureItemName)")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(1)
@@ -369,6 +370,17 @@ private struct CaptureItemEditor: View {
             return UIImage(contentsOfFile: url.path)
         }
     #endif
+
+        private var captureItemDisplayName: String? {
+            guard let captureItemId = record.captureItemId,
+                  let item = captureItems.first(where: { $0.id == captureItemId }) else {
+                return nil
+            }
+            if let space = item.spaceLabel, !space.isEmpty {
+                return "\(item.tag.displayName) • \(space)"
+            }
+            return item.tag.displayName
+        }
     }
 
     init(

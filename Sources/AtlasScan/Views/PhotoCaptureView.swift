@@ -195,10 +195,10 @@ public struct PhotoCaptureView: View {
                     onCapture(selectedCaptureItem, record)
                     dismiss()
                 } catch {
-                    errorMessage = "Failed to save photo."
+                    errorMessage = "Failed to save photo: \(error.localizedDescription)"
                 }
-            case .failure:
-                errorMessage = "Failed to capture photo."
+            case .failure(let error):
+                errorMessage = "Failed to capture photo: \(error.localizedDescription)"
             }
         }
     }
@@ -359,7 +359,9 @@ private final class CameraSessionController: NSObject, ObservableObject {
             DispatchQueue.main.async {
                 self.isTorchEnabled = enabled
             }
-        } catch {}
+        } catch {
+            print("Torch toggle failed: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -374,7 +376,15 @@ extension CameraSessionController: AVCapturePhotoCaptureDelegate {
         }
 
         guard let data = photo.fileDataRepresentation() else {
-            captureCompletion?(.failure(NSError(domain: "PhotoCapture", code: -1)))
+            captureCompletion?(
+                .failure(
+                    NSError(
+                        domain: "PhotoCapture",
+                        code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Failed to obtain photo data representation."]
+                    )
+                )
+            )
             captureCompletion = nil
             return
         }
