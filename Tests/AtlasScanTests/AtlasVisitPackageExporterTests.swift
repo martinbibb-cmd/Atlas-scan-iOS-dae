@@ -210,6 +210,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             fieldTestModeEnabled: true,
             fieldTestNotes: [
                 FieldTestNote(
+                    createdAt: baseDate.addingTimeInterval(50),
                     category: .mediaProblem,
                     details: "Voice note clipping on playback.",
                     photoLocalUri: photoPath,

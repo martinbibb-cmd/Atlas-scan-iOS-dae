@@ -24,7 +24,6 @@ struct FieldTestIssueLoggerSheet: View {
     @State private var recorder: AVAudioRecorder?
     @State private var recordingURL: URL?
     @State private var isRecordingVoice = false
-    @State private var recordingStartedAt: Date?
     #endif
 
     var body: some View {
@@ -173,8 +172,15 @@ struct FieldTestIssueLoggerSheet: View {
         let permission = audioSession.recordPermission
         guard permission == .granted else {
             if permission == .undetermined {
-                audioSession.requestRecordPermission { _ in }
-                errorMessage = "Allow microphone access and tap record again."
+                audioSession.requestRecordPermission { granted in
+                    DispatchQueue.main.async {
+                        if granted {
+                            startVoiceNoteRecording()
+                        } else {
+                            errorMessage = "Microphone access is required to attach a voice note."
+                        }
+                    }
+                }
             } else {
                 errorMessage = "Microphone access is required to attach a voice note."
             }
@@ -198,7 +204,6 @@ struct FieldTestIssueLoggerSheet: View {
             recorder.record()
             self.recorder = recorder
             self.recordingURL = recordingURL
-            self.recordingStartedAt = Date()
             self.isRecordingVoice = true
         } catch {
             errorMessage = "Failed to start voice recording: \(error.localizedDescription)"
@@ -207,10 +212,10 @@ struct FieldTestIssueLoggerSheet: View {
 
     private func stopVoiceNoteRecording() {
         guard let recorder, let recordingURL else { return }
+        let duration = recorder.currentTime
         recorder.stop()
         self.recorder = nil
         isRecordingVoice = false
-        let duration = Date().timeIntervalSince(recordingStartedAt ?? Date())
         do {
             let data = try Data(contentsOf: recordingURL)
             let path = try EvidenceMediaStore.saveAudioData(
@@ -222,7 +227,6 @@ struct FieldTestIssueLoggerSheet: View {
             voiceDurationSeconds = max(duration, 0)
             try? FileManager.default.removeItem(at: recordingURL)
             self.recordingURL = nil
-            recordingStartedAt = nil
             try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         } catch {
             errorMessage = "Failed to save voice attachment: \(error.localizedDescription)"
@@ -237,7 +241,6 @@ struct FieldTestIssueLoggerSheet: View {
             self.recordingURL = nil
         }
         isRecordingVoice = false
-        recordingStartedAt = nil
         try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
     }
     #else

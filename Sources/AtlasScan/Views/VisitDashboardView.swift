@@ -218,58 +218,58 @@ public struct VisitDashboardView: View {
                     previewVisitPackageExport()
                 }
             }
-
-            private var fieldTestSection: some View {
-                VStack(alignment: .leading, spacing: 10) {
-                    Toggle("Field Test Mode", isOn: fieldTestModeBinding)
-                        .font(.headline)
-
-                    if visit.fieldTestModeEnabled {
-                        Text("Checklist")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                        ForEach(FieldTestIssueCategory.allCases, id: \.self) { category in
-                            HStack {
-                                Image(systemName: issueCount(for: category) > 0 ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(issueCount(for: category) > 0 ? Color.green : Color.secondary)
-                                Text(category.displayName)
-                                    .font(.caption)
-                                Spacer()
-                                if issueCount(for: category) > 0 {
-                                    Text("\(issueCount(for: category))")
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
-
-                        Button {
-                            showFieldIssueLogger = true
-                        } label: {
-                            Label("Log Issue", systemImage: "exclamationmark.bubble")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-
-                    if visit.fieldTestNotes.isEmpty {
-                        Text("No field issues logged yet.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    } else {
-                        Text("\(visit.fieldTestNotes.count) field issues logged")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
             if let exportedPackageURL {
                 ShareLink(item: exportedPackageURL) {
                     Label("Share Exported Package", systemImage: "square.and.arrow.up")
                         .font(.subheadline)
                 }
+            }
+        }
+    }
+
+    private var fieldTestSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Toggle("Field Test Mode", isOn: fieldTestModeBinding)
+                .font(.headline)
+
+            if visit.fieldTestModeEnabled {
+                Text("Checklist")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                ForEach(FieldTestIssueCategory.allCases, id: \.self) { category in
+                    HStack {
+                        Image(systemName: issueCount(for: category) > 0 ? "checkmark.circle.fill" : "circle")
+                            .foregroundStyle(issueCount(for: category) > 0 ? Color.green : Color.secondary)
+                        Text(category.displayName)
+                            .font(.caption)
+                        Spacer()
+                        if issueCount(for: category) > 0 {
+                            Text("\(issueCount(for: category))")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+
+                Button {
+                    showFieldIssueLogger = true
+                } label: {
+                    Label("Log Issue", systemImage: "exclamationmark.bubble")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+
+            if visit.fieldTestNotes.isEmpty {
+                Text("No field issues logged yet.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                Text("\(visit.fieldTestNotes.count) field issues logged")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }
