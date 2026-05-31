@@ -47,7 +47,11 @@ public struct AtlasVisitPackageExporter {
             visit: visit,
             captureItems: visit.captureItems,
             evidenceRecords: visit.evidenceRecords,
-            surveyNudgeStates: [:],
+            surveyNudgeStates: Dictionary(
+                uniqueKeysWithValues: visit.surveyNudgeStates.map {
+                    ($0.nudgeID.rawValue, $0.state)
+                }
+            ),
             progressSummary: visit.progressSummary,
             mediaManifest: mediaManifest(for: visit)
         )
