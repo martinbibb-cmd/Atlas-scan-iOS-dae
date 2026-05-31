@@ -317,6 +317,15 @@ If not, Atlas Scan has failed regardless of technical sophistication.
 - JSON Package
 - Media References
 
+## PR Status
+
+| PR | Title | Status |
+|----|-------|--------|
+| PR 1 | Repository foundation & README | ✅ Merged |
+| PR 2 | Core local survey data model | ✅ Data-model only — no UI, no camera, no voice, no ARKit, no recommendations, no pricing, no Mind logic. Models: `Visit`, `CaptureItem`, `EvidenceRecord`, `ObjectTag`, `TwinDrafts`. Codable + Identifiable. 30 unit tests passing. |
+
+---
+
 ## Codex-Ready Copy Box
 
 `feat(scan): create Atlas Scan V0.1 foundation`
