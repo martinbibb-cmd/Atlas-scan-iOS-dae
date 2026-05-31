@@ -13,8 +13,15 @@ public struct PhotoCaptureView: View {
 
     @StateObject private var cameraController = CameraSessionController()
     @State private var captureItems: [CaptureItem]
+    @State private var showTagSheet = false
+    @State private var pendingPhotoData: Data?
+    @State private var attachToExistingItem = false
     @State private var selectedCaptureItemId: UUID?
-    @State private var showCaptureItemEditor = false
+    @State private var selectedTag: ObjectTag
+    @State private var selectedTwinArea: TwinArea
+    @State private var selectedStatus: CaptureStatus = .unknown
+    @State private var spaceLabel = ""
+    @State private var recentTags = RecentObjectTags()
     @State private var errorMessage: String?
 
     public init(
@@ -23,6 +30,7 @@ public struct PhotoCaptureView: View {
         preferredTwinArea: TwinArea? = nil
     ) {
         let resolvedTwinArea = preferredTwinArea ?? visit.captureItems.first?.twinArea ?? .system
+        let initialTag = resolvedTwinArea.defaultObjectTag
         self.visitId = visit.id
         self.preferredTwinArea = resolvedTwinArea
         self.onCapture = onCapture
@@ -30,6 +38,8 @@ public struct PhotoCaptureView: View {
         _selectedCaptureItemId = State(
             initialValue: visit.captureItems.first(where: { $0.twinArea == resolvedTwinArea })?.id ?? visit.captureItems.first?.id
         )
+        _selectedTag = State(initialValue: initialTag)
+        _selectedTwinArea = State(initialValue: initialTag.defaultTwinArea)
     }
 
     public var body: some View {
@@ -54,11 +64,20 @@ public struct PhotoCaptureView: View {
         .onDisappear {
             cameraController.stopSession()
         }
-        .sheet(isPresented: $showCaptureItemEditor) {
-            CaptureItemQuickCreateView(visitId: visitId, initialTwinArea: preferredTwinArea) { item in
-                captureItems.append(item)
-                selectedCaptureItemId = item.id
-            }
+        .sheet(isPresented: $showTagSheet) {
+            PhotoTagSheetView(
+                captureItems: captureItems,
+                recentTags: recentTags.tags,
+                attachToExistingItem: $attachToExistingItem,
+                selectedCaptureItemId: $selectedCaptureItemId,
+                selectedTag: $selectedTag,
+                selectedTwinArea: $selectedTwinArea,
+                selectedStatus: $selectedStatus,
+                spaceLabel: $spaceLabel,
+                onRetake: retakePhoto,
+                onDiscard: discardPhoto,
+                onSave: saveCapturedPhoto
+            )
         }
         .alert("Capture Error", isPresented: captureErrorPresented, actions: {
             Button("OK", role: .cancel) { errorMessage = nil }
@@ -101,30 +120,18 @@ public struct PhotoCaptureView: View {
 
     private var controls: some View {
         VStack(spacing: 12) {
-            if captureItems.isEmpty {
-                Text("Create a capture item before taking a photo.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
-            } else {
-                Picker("Capture Item", selection: selectedItemBinding) {
-                    ForEach(captureItems) { item in
-                        Text(item.tag.displayName).tag(item.id)
-                    }
-                }
-                .pickerStyle(.menu)
-            }
-
             HStack {
-                Button("New Capture Item") {
-                    showCaptureItemEditor = true
-                }
-
-                Spacer()
-
                 if cameraController.hasTorch {
                     Button(cameraController.isTorchEnabled ? "Torch Off" : "Torch On") {
                         cameraController.toggleTorch()
                     }
+                }
+                Spacer()
+                if !recentTags.tags.isEmpty {
+                    Text("Recent: \(recentTags.tags.prefix(3).map(\.displayName).joined(separator: ", "))")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.trailing)
                 }
             }
 
@@ -137,8 +144,7 @@ public struct PhotoCaptureView: View {
                     .frame(width: 78, height: 78)
             }
             .disabled(
-                cameraController.authorizationStatus != .authorized ||
-                selectedCaptureItemId == nil
+                cameraController.authorizationStatus != .authorized
             )
             .accessibilityLabel("Shutter")
         }
@@ -162,13 +168,6 @@ public struct PhotoCaptureView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
-    private var selectedItemBinding: Binding<UUID> {
-        Binding(
-            get: { selectedCaptureItemId ?? captureItems.first?.id ?? UUID() },
-            set: { selectedCaptureItemId = $0 }
-        )
-    }
-
     private var captureErrorPresented: Binding<Bool> {
         Binding(
             get: { errorMessage != nil },
@@ -177,119 +176,268 @@ public struct PhotoCaptureView: View {
     }
 
     private func takePhoto() {
-        guard let selectedCaptureItemId,
-              let selectedCaptureItem = captureItems.first(where: { $0.id == selectedCaptureItemId }) else {
-            showCaptureItemEditor = true
-            return
-        }
-
         cameraController.capturePhoto { result in
             switch result {
             case .success(let data):
-                do {
-                    let evidenceId = UUID()
-                    let storedPath = try EvidenceMediaStore.savePhotoData(
-                        data,
-                        visitId: visitId,
-                        evidenceId: evidenceId
-                    )
-                    let record = EvidenceRecord(
-                        id: evidenceId,
-                        visitId: visitId,
-                        captureItemId: selectedCaptureItem.id,
-                        evidenceType: .photo,
-                        localUri: storedPath,
-                        provenanceLevel: .surveyor
-                    )
-                    onCapture(selectedCaptureItem, record)
-                    dismiss()
-                } catch {
-                    errorMessage = "Failed to save photo: \(error.localizedDescription)"
-                }
+                pendingPhotoData = data
+                prepareTagSheet()
+                showTagSheet = true
             case .failure(let error):
                 errorMessage = "Failed to capture photo: \(error.localizedDescription)"
             }
         }
     }
+
+    private func prepareTagSheet() {
+        let preferredTag = recentTags.tags.first ?? preferredTwinArea.defaultObjectTag
+        attachToExistingItem = !captureItems.isEmpty
+        selectedCaptureItemId = captureItems.first(where: { $0.twinArea == preferredTwinArea })?.id ?? captureItems.first?.id
+        selectedTag = preferredTag
+        selectedTwinArea = preferredTag.defaultTwinArea
+        selectedStatus = .unknown
+        spaceLabel = ""
+        if attachToExistingItem {
+            applySelectedCaptureItemDefaults()
+        }
+    }
+
+    private func saveCapturedPhoto() {
+        guard let pendingPhotoData else { return }
+
+        let captureItem = resolvedCaptureItemForSave()
+
+        do {
+            let evidenceId = UUID()
+            let storedPath = try EvidenceMediaStore.savePhotoData(
+                pendingPhotoData,
+                visitId: visitId,
+                evidenceId: evidenceId
+            )
+            let record = EvidenceRecord(
+                id: evidenceId,
+                visitId: visitId,
+                captureItemId: captureItem.id,
+                evidenceType: .photo,
+                localUri: storedPath,
+                provenanceLevel: .surveyor
+            )
+            recentTags.record(captureItem.tag)
+            onCapture(captureItem, record)
+            clearPendingCapture()
+            dismiss()
+        } catch {
+            errorMessage = "Failed to save photo: \(error.localizedDescription)"
+        }
+    }
+
+    private func resolvedCaptureItemForSave() -> CaptureItem {
+        if attachToExistingItem,
+           let selectedCaptureItemId,
+           var existingItem = captureItems.first(where: { $0.id == selectedCaptureItemId }) {
+            existingItem.visitId = visitId
+            existingItem.tag = selectedTag
+            existingItem.twinArea = selectedTwinArea
+            existingItem.status = selectedStatus
+            existingItem.spaceLabel = spaceLabel.nilIfBlank
+            existingItem.updatedAt = Date()
+            if let index = captureItems.firstIndex(where: { $0.id == existingItem.id }) {
+                captureItems[index] = existingItem
+            }
+            return existingItem
+        }
+
+        let newItem = CaptureItem(
+            visitId: visitId,
+            twinArea: selectedTwinArea,
+            tag: selectedTag,
+            status: selectedStatus,
+            spaceLabel: spaceLabel.nilIfBlank
+        )
+        captureItems.append(newItem)
+        selectedCaptureItemId = newItem.id
+        return newItem
+    }
+
+    private func retakePhoto() {
+        clearPendingCapture()
+    }
+
+    private func discardPhoto() {
+        clearPendingCapture()
+    }
+
+    private func clearPendingCapture() {
+        pendingPhotoData = nil
+        showTagSheet = false
+    }
+
+    private func applySelectedCaptureItemDefaults() {
+        guard attachToExistingItem,
+              let selectedCaptureItemId,
+              let item = captureItems.first(where: { $0.id == selectedCaptureItemId }) else {
+            return
+        }
+        selectedTag = item.tag
+        selectedTwinArea = item.twinArea
+        selectedStatus = item.status
+        spaceLabel = item.spaceLabel ?? ""
+    }
 }
 
-private struct CaptureItemQuickCreateView: View {
+private struct PhotoTagSheetView: View {
 
-    @Environment(\.dismiss) private var dismiss
+    private static let quickTagOptions: [(title: String, tag: ObjectTag)] = [
+        ("Boiler", .boiler),
+        ("Cylinder", .cylinder),
+        ("Flue", .flue),
+        ("Controls", .programmer),
+        ("Gas Meter", .gasMeter),
+        ("Consumer Unit", .consumerUnit),
+        ("Risk", .risk),
+    ]
 
-    let visitId: UUID
-    let initialTwinArea: TwinArea
-    let onSave: (CaptureItem) -> Void
+    let captureItems: [CaptureItem]
+    let recentTags: [ObjectTag]
+    @Binding var attachToExistingItem: Bool
+    @Binding var selectedCaptureItemId: UUID?
+    @Binding var selectedTag: ObjectTag
+    @Binding var selectedTwinArea: TwinArea
+    @Binding var selectedStatus: CaptureStatus
+    @Binding var spaceLabel: String
 
-    @State private var tag: ObjectTag
-    @State private var twinArea: TwinArea
-    @State private var spaceLabel = ""
-    @State private var notes = ""
-    @State private var hasManualTwinAreaOverride: Bool
+    let onRetake: () -> Void
+    let onDiscard: () -> Void
+    let onSave: () -> Void
 
-    init(visitId: UUID, initialTwinArea: TwinArea, onSave: @escaping (CaptureItem) -> Void) {
-        self.visitId = visitId
-        self.initialTwinArea = initialTwinArea
-        self.onSave = onSave
-
-        let initialTag = initialTwinArea.defaultObjectTag
-
-        _tag = State(initialValue: initialTag)
-        _twinArea = State(initialValue: initialTwinArea)
-        _hasManualTwinAreaOverride = State(initialValue: initialTwinArea != initialTag.defaultTwinArea)
-    }
+    @State private var hasManualTwinAreaOverride = false
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Object") {
-                    Picker("Tag", selection: $tag) {
-                        ForEach(ObjectTag.allCases, id: \.self) { item in
-                            Text(item.displayName).tag(item)
+                if !captureItems.isEmpty {
+                    Section("Attach") {
+                        Toggle("Attach to Existing Capture Item", isOn: $attachToExistingItem)
+                        if attachToExistingItem {
+                            Picker("Capture Item", selection: selectedItemBinding) {
+                                ForEach(captureItems) { item in
+                                    Text(item.tag.displayName).tag(item.id)
+                                }
+                            }
+                            .pickerStyle(.menu)
                         }
                     }
-                    Picker("Twin Area", selection: $twinArea) {
+                }
+
+                Section("Quick Tags") {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(Self.quickTagOptions, id: \.title) { quickTag in
+                                Button(quickTag.title) {
+                                    selectedTag = quickTag.tag
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .tint(selectedTag == quickTag.tag ? .blue : .secondary)
+                            }
+                        }
+                    }
+                }
+
+                if !recentTags.isEmpty {
+                    Section("Recent Tags") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(recentTags, id: \.self) { tag in
+                                    Button(tag.displayName) {
+                                        selectedTag = tag
+                                    }
+                                    .buttonStyle(.bordered)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Section("Tag Details") {
+                    Picker("Object Tag", selection: $selectedTag) {
+                        ForEach(ObjectTag.allCases, id: \.self) { tag in
+                            Text(tag.displayName).tag(tag)
+                        }
+                    }
+                    Picker("Twin Area", selection: $selectedTwinArea) {
                         ForEach(TwinArea.allCases, id: \.self) { area in
                             Text(area.displayName).tag(area)
                         }
                     }
+                    Picker("Status", selection: $selectedStatus) {
+                        ForEach(CaptureStatus.allCases, id: \.self) { status in
+                            Text(status.displayName).tag(status)
+                        }
+                    }
+                    TextField("Space Label (optional)", text: $spaceLabel)
                 }
-                Section("Optional") {
-                    TextField("Space Label", text: $spaceLabel)
-                    TextField("Notes", text: $notes, axis: .vertical)
-                        .lineLimit(2...6)
+
+                Section {
+                    Button("Retake") { onRetake() }
+                    Button("Discard", role: .destructive) { onDiscard() }
                 }
             }
-            .navigationTitle("New Capture Item")
+            .navigationTitle("Tag Photo")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        let item = CaptureItem(
-                            visitId: visitId,
-                            twinArea: twinArea,
-                            tag: tag,
-                            status: .unknown,
-                            spaceLabel: spaceLabel.nilIfBlank,
-                            notes: notes.nilIfBlank
-                        )
-                        onSave(item)
-                        dismiss()
-                    }
+                    Button("Save") { onSave() }
                 }
             }
         }
-        .onChange(of: tag) { newTag in
-            if !hasManualTwinAreaOverride {
-                twinArea = newTag.defaultTwinArea
+        .onAppear {
+            if attachToExistingItem {
+                applySelectedItem()
+            } else {
+                hasManualTwinAreaOverride = selectedTwinArea != selectedTag.defaultTwinArea
             }
         }
-        .onChange(of: twinArea) { newTwinArea in
-            hasManualTwinAreaOverride = newTwinArea != tag.defaultTwinArea
+        .onChange(of: selectedTag) { newTag in
+            if !hasManualTwinAreaOverride {
+                selectedTwinArea = newTag.defaultTwinArea
+            }
         }
+        .onChange(of: selectedTwinArea) { newTwinArea in
+            hasManualTwinAreaOverride = newTwinArea != selectedTag.defaultTwinArea
+        }
+        .onChange(of: attachToExistingItem) { shouldAttach in
+            if shouldAttach {
+                if selectedCaptureItemId == nil {
+                    selectedCaptureItemId = captureItems.first?.id
+                }
+                applySelectedItem()
+            } else {
+                hasManualTwinAreaOverride = selectedTwinArea != selectedTag.defaultTwinArea
+            }
+        }
+        .onChange(of: selectedCaptureItemId) { _ in
+            if attachToExistingItem {
+                applySelectedItem()
+            }
+        }
+    }
+
+    private var selectedItemBinding: Binding<UUID> {
+        Binding(
+            get: { selectedCaptureItemId ?? captureItems.first?.id ?? UUID() },
+            set: { selectedCaptureItemId = $0 }
+        )
+    }
+
+    private func applySelectedItem() {
+        guard let selectedCaptureItemId,
+              let item = captureItems.first(where: { $0.id == selectedCaptureItemId }) else {
+            return
+        }
+        selectedTag = item.tag
+        selectedTwinArea = item.twinArea
+        selectedStatus = item.status
+        spaceLabel = item.spaceLabel ?? ""
+        hasManualTwinAreaOverride = item.twinArea != item.tag.defaultTwinArea
     }
 }
 
@@ -448,6 +596,23 @@ private struct CameraPreview: UIViewRepresentable {
 private final class PreviewView: UIView {
     override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
     var previewLayer: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
+}
+
+private extension CaptureStatus {
+    var displayName: String {
+        switch self {
+        case .complete:
+            return "Complete"
+        case .needsReview:
+            return "Needs Review"
+        case .unknown:
+            return "Unknown"
+        case .notRequired:
+            return "Not Required"
+        case .assumed:
+            return "Assumed"
+        }
+    }
 }
 
 private extension String {
