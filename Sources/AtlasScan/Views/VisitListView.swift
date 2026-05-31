@@ -46,7 +46,7 @@ public struct VisitListView: View {
         List {
             ForEach(store.visits) { visit in
                 NavigationLink {
-                    VisitDetailView(visit: visit, store: store)
+                   VisitDashboardView(visit: visit, store: store)
                 } label: {
                     VisitRowView(visit: visit)
                 }
