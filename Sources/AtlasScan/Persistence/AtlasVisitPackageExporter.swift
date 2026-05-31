@@ -43,7 +43,7 @@ public struct AtlasVisitPackageExporter {
 
     public func buildPackage(for visit: Visit, exportedAt: Date = Date()) -> AtlasVisitPackage {
         let mediaInspection = inspectMedia(for: visit)
-        AtlasVisitPackage(
+        return AtlasVisitPackage(
             exportedAt: exportedAt,
             visit: visit,
             captureItems: visit.captureItems,
@@ -68,23 +68,26 @@ public struct AtlasVisitPackageExporter {
 
     private func inspectMedia(for visit: Visit) -> (manifest: [AtlasVisitMediaManifestEntry], missingWarnings: [String]) {
         var missingWarnings: [String] = []
-        let manifest = visit.evidenceRecords.compactMap { record in
-            guard let localUri = record.localUri else { return nil }
+        var manifest: [AtlasVisitMediaManifestEntry] = []
+
+        for record in visit.evidenceRecords {
+            guard let localUri = record.localUri else { continue }
             let metadata = mediaMetadata(for: localUri)
             if !metadata.exists {
                 missingWarnings.append(
                     "Missing \(record.evidenceType.rawValue) media for evidence \(record.id.uuidString) at \(localUri)."
                 )
             }
-            return AtlasVisitMediaManifestEntry(
+            manifest.append(AtlasVisitMediaManifestEntry(
                 evidenceId: record.id,
                 relativePath: localUri,
                 evidenceType: record.evidenceType,
                 captureItemId: record.captureItemId,
                 fileSizeBytes: metadata.fileSizeBytes,
                 checksum: metadata.checksum
-            )
+            ))
         }
+
         return (manifest, missingWarnings)
     }
 

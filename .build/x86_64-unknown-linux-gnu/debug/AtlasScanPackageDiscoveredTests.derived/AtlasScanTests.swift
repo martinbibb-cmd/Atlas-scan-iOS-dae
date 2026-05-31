@@ -6,6 +6,7 @@ fileprivate extension AtlasVisitPackageExporterTests {
     static nonisolated(unsafe) let __allTests__AtlasVisitPackageExporterTests = [
         ("testAtlasVisitPackageEncodeDecodeRoundTrip", testAtlasVisitPackageEncodeDecodeRoundTrip),
         ("testBuildPackageIncludesVisitDataAndProgressSummary", testBuildPackageIncludesVisitDataAndProgressSummary),
+        ("testBuildPackageWarnsWhenMediaIsMissing", testBuildPackageWarnsWhenMediaIsMissing),
         ("testExportWritesJSONThatRoundTrips", testExportWritesJSONThatRoundTrips)
     ]
 }
