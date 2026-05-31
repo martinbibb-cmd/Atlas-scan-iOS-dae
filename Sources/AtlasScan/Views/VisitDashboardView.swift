@@ -9,6 +9,8 @@ import AVFoundation
 
 public struct VisitDashboardView: View {
 
+    private let recentActivityLimit = 10
+
     @ObservedObject public var store: VisitStore
 
     @State private var visit: Visit
@@ -128,10 +130,10 @@ public struct VisitDashboardView: View {
     }
 
     private var surveyHealthBanner: some View {
-        let unresolved = visit.progressSummary.totalUnresolvedCount
+        let unresolvedCount = visit.progressSummary.totalUnresolvedCount
         let activeNudges = SurveyNudgeEngine.nudges(for: visit).filter(\.isActive)
         return VStack(alignment: .leading, spacing: 4) {
-            Text(unresolved == 1 ? "1 item needs review" : "\(unresolved) items need review")
+            Text(unresolvedCount == 1 ? "1 unresolved item" : "\(unresolvedCount) unresolved items")
                 .font(.subheadline)
                 .fontWeight(.semibold)
             if let firstNudge = activeNudges.first {
@@ -151,7 +153,7 @@ public struct VisitDashboardView: View {
 
     private var twinSummarySection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("System • House • Home")
+            Text("Property Areas")
                 .font(.headline)
             ForEach(TwinArea.allCases, id: \.self) { area in
                 NavigationLink {
@@ -265,7 +267,7 @@ public struct VisitDashboardView: View {
                 Text("No evidence yet.")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(visit.evidenceRecords.sorted { $0.createdAt > $1.createdAt }) { record in
+                ForEach(sortedEvidenceRecords) { record in
                     VStack(alignment: .leading, spacing: 4) {
                         Text(recordTitle(record))
                             .font(.subheadline)
@@ -309,10 +311,8 @@ public struct VisitDashboardView: View {
                 subtitle: $0.status.rawValue.capitalized
             )
         }
-        return (evidenceActivity + captureActivity)
-            .sorted { $0.timestamp > $1.timestamp }
-            .prefix(10)
-            .map { $0 }
+        let sorted = (evidenceActivity + captureActivity).sorted { $0.timestamp > $1.timestamp }
+        return Array(sorted.prefix(recentActivityLimit))
     }
 
     private func quickActionButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
@@ -324,6 +324,10 @@ public struct VisitDashboardView: View {
                 .padding(.vertical, 14)
         }
         .buttonStyle(.bordered)
+    }
+
+    private var sortedEvidenceRecords: [EvidenceRecord] {
+        visit.evidenceRecords.sorted { $0.createdAt > $1.createdAt }
     }
 
     private var statusColor: Color {
@@ -508,7 +512,6 @@ private struct ManualCaptureItemSheet: View {
                 }
             }
         }
-        .onChange(of: tag) { twinArea = $0.defaultTwinArea }
     }
 }
 
