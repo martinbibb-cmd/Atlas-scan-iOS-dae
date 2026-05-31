@@ -6,6 +6,7 @@ public struct VisitListView: View {
 
     @ObservedObject public var store: VisitStore
     @State private var showCreate = false
+    @AppStorage(SurveyAssistanceLevel.storageKey) private var assistanceLevelRaw = SurveyAssistanceLevel.defaultLevel.rawValue
 
     public init(store: VisitStore) {
         self.store = store
@@ -22,6 +23,9 @@ public struct VisitListView: View {
             }
             .navigationTitle("Visits")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    assistanceLevelMenu
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button("New Visit") { showCreate = true }
                 }
@@ -55,6 +59,19 @@ public struct VisitListView: View {
                 indexSet.forEach { store.delete(store.visits[$0]) }
             }
         }
+    }
+
+    private var assistanceLevelMenu: some View {
+        Menu {
+            Picker("Assistance Level", selection: $assistanceLevelRaw) {
+                ForEach(SurveyAssistanceLevel.allCases, id: \.self) { level in
+                    Text(level.displayName).tag(level.rawValue)
+                }
+            }
+        } label: {
+            Label("Assistance", systemImage: "slider.horizontal.3")
+        }
+        .accessibilityLabel("Survey assistance level")
     }
 }
 
