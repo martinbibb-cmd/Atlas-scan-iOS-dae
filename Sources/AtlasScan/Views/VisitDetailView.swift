@@ -1,5 +1,8 @@
 #if canImport(SwiftUI)
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// Shows and edits a single visit's metadata and lets the user change its status.
 public struct VisitDetailView: View {
@@ -11,6 +14,7 @@ public struct VisitDetailView: View {
     @State private var isEditing = false
     @State private var showAddCaptureItem = false
     @State private var editingCaptureItem: CaptureItem?
+    @State private var showPhotoCapture = false
 
     public init(visit: Visit, store: VisitStore) {
         _visit = State(initialValue: visit)
@@ -23,6 +27,7 @@ public struct VisitDetailView: View {
             statusSection
             captureActionsSection
             captureItemSections
+            evidenceSection
             actionSection
             deleteSection
         }
@@ -52,6 +57,14 @@ public struct VisitDetailView: View {
                 updateCaptureItem(updatedItem)
             }
         }
+#if canImport(UIKit) && canImport(AVFoundation)
+        .sheet(isPresented: $showPhotoCapture) {
+            PhotoCaptureView(visit: visit) { captureItem, evidenceRecord in
+                upsertCaptureItem(captureItem)
+                addEvidenceRecord(evidenceRecord)
+            }
+        }
+#endif
     }
 
     // MARK: - Sections
@@ -88,6 +101,11 @@ public struct VisitDetailView: View {
             Button("Add Capture Item") {
                 showAddCaptureItem = true
             }
+#if canImport(UIKit) && canImport(AVFoundation)
+            Button("Capture Photo") {
+                showPhotoCapture = true
+            }
+#endif
             if visit.captureItems.isEmpty {
                 Text("No capture items yet.")
                     .foregroundStyle(.secondary)
@@ -123,6 +141,19 @@ public struct VisitDetailView: View {
     private var actionSection: some View {
         Section {
             statusToggleButton
+        }
+    }
+
+    private var evidenceSection: some View {
+        Section("Evidence") {
+            if photoEvidenceRecords.isEmpty {
+                Text("No photos captured yet.")
+                    .foregroundStyle(.secondary)
+            } else {
+                ForEach(photoEvidenceRecords) { record in
+                    EvidenceRow(record: record, captureItems: visit.captureItems)
+                }
+            }
         }
     }
 
@@ -190,6 +221,20 @@ public struct VisitDetailView: View {
         persistVisit()
     }
 
+    private func upsertCaptureItem(_ item: CaptureItem) {
+        if let index = visit.captureItems.firstIndex(where: { $0.id == item.id }) {
+            visit.captureItems[index] = item
+        } else {
+            visit.captureItems.append(item)
+        }
+        persistVisit()
+    }
+
+    private func addEvidenceRecord(_ record: EvidenceRecord) {
+        visit.evidenceRecords.append(record)
+        persistVisit()
+    }
+
     private func deleteCaptureItem(id: UUID) {
         visit.captureItems.removeAll { $0.id == id }
         persistVisit()
@@ -199,6 +244,12 @@ public struct VisitDetailView: View {
         visit.updatedAt = Date()
         store.update(visit)
         syncFromStore()
+    }
+
+    private var photoEvidenceRecords: [EvidenceRecord] {
+        visit.evidenceRecords
+            .filter { $0.evidenceType == .photo }
+            .sorted { $0.createdAt > $1.createdAt }
     }
 }
 
@@ -259,6 +310,77 @@ private struct CaptureItemEditor: View {
         _status = State(initialValue: initialStatus)
         _spaceLabel = State(initialValue: initialSpaceLabel ?? "")
         _notes = State(initialValue: initialNotes ?? "")
+    }
+
+    private struct EvidenceRow: View {
+
+        let record: EvidenceRecord
+        let captureItems: [CaptureItem]
+
+        var body: some View {
+            HStack(spacing: 12) {
+    #if canImport(UIKit)
+                if let image = imageForRecord {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 64, height: 64)
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                } else {
+                    placeholder
+                }
+    #else
+                placeholder
+    #endif
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Photo")
+                        .font(.headline)
+                    if let captureItemName = captureItemDisplayName {
+                        Text("Capture Item: \(captureItemName)")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    if let localUri = record.localUri {
+                        Text(localUri)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .padding(.vertical, 2)
+        }
+
+        private var placeholder: some View {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.secondary.opacity(0.2))
+                .frame(width: 64, height: 64)
+                .overlay {
+                    Image(systemName: "photo")
+                        .foregroundStyle(.secondary)
+                }
+        }
+
+    #if canImport(UIKit)
+        private var imageForRecord: UIImage? {
+            guard let localUri = record.localUri else { return nil }
+            let url = EvidenceMediaStore.resolveURL(for: localUri)
+            return UIImage(contentsOfFile: url.path)
+        }
+    #endif
+
+        private var captureItemDisplayName: String? {
+            guard let captureItemId = record.captureItemId,
+                  let item = captureItems.first(where: { $0.id == captureItemId }) else {
+                return nil
+            }
+            if let space = item.spaceLabel, !space.isEmpty {
+                return "\(item.tag.displayName) • \(space)"
+            }
+            return item.tag.displayName
+        }
     }
 
     init(
