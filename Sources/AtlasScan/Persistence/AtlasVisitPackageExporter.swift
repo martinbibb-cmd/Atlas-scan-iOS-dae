@@ -13,6 +13,9 @@ public struct AtlasVisitPackageExportResult: Sendable {
 public struct AtlasVisitPackageExporter {
 
     public static let exportsDirectoryName = "VisitExports"
+    private static let checksumChunkSize = 64 * 1024
+    private static let fnv1a64OffsetBasis: UInt64 = 14_695_981_039_346_656_037
+    private static let fnv1a64Prime: UInt64 = 1_099_511_628_211
 
     private let fileManager: FileManager
     private let baseDirectory: URL?
@@ -107,17 +110,25 @@ public struct AtlasVisitPackageExporter {
         guard fileManager.fileExists(atPath: resolvedURL.path) else {
             return (false, nil, nil)
         }
-        guard let data = try? Data(contentsOf: resolvedURL, options: [.mappedIfSafe]) else {
-            return (true, nil, nil)
-        }
-        return (true, Int64(data.count), checksum(for: data))
+        let attributes = try? fileManager.attributesOfItem(atPath: resolvedURL.path)
+        let fileSize = (attributes?[.size] as? NSNumber)?.int64Value
+        return (true, fileSize, checksum(for: resolvedURL))
     }
 
-    private func checksum(for data: Data) -> String {
-        var hash: UInt64 = 14_695_981_039_346_656_037
-        for byte in data {
-            hash ^= UInt64(byte)
-            hash = hash &* 1_099_511_628_211
+    private func checksum(for fileURL: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: fileURL) else {
+            return nil
+        }
+        defer { try? handle.close() }
+
+        var hash = Self.fnv1a64OffsetBasis
+        while true {
+            let chunk = handle.readData(ofLength: Self.checksumChunkSize)
+            guard !chunk.isEmpty else { break }
+            for byte in chunk {
+                hash ^= UInt64(byte)
+                hash = hash &* Self.fnv1a64Prime
+            }
         }
         return String(format: "fnv1a64:%016llx", hash)
     }

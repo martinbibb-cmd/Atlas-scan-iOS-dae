@@ -103,15 +103,9 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
     }
 
     func testBuildPackageWarnsWhenMediaIsMissing() throws {
-        let visit = try makeVisitWithMedia()
-        let missingPath = try XCTUnwrap(visit.evidenceRecords[1].localUri)
-        try fileManager.removeItem(
-            at: EvidenceMediaStore.resolveURL(
-                for: missingPath,
-                fileManager: fileManager,
-                baseDirectory: baseDirectory
-            )
-        )
+        var visit = try makeVisitWithMedia()
+        let missingPath = "VisitMedia/\(visit.id.uuidString)/missing-video.mov"
+        visit.evidenceRecords[1].localUri = missingPath
 
         let exporter = AtlasVisitPackageExporter(fileManager: fileManager, baseDirectory: baseDirectory)
         let package = exporter.buildPackage(for: visit)
