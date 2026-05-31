@@ -22,6 +22,7 @@ public struct VisitDashboardView: View {
     @State private var showPhotoCapture = false
     @State private var showVoiceCapture = false
     @State private var showManualCapture = false
+    @State private var exportPreviewPackage: AtlasVisitPackage?
     @State private var exportedPackageURL: URL?
     @State private var exportErrorMessage: String?
     @State private var captureInfoMessage: String?
@@ -102,6 +103,13 @@ public struct VisitDashboardView: View {
         }, message: {
             Text(captureInfoMessage ?? "")
         })
+        .sheet(item: $exportPreviewPackage) { package in
+            VisitExportPreviewSheet(
+                package: package,
+                onConfirm: { confirmVisitPackageExport() },
+                onCancel: { exportPreviewPackage = nil }
+            )
+        }
     }
 
     private var assistanceLevel: SurveyAssistanceLevel {
@@ -200,7 +208,7 @@ public struct VisitDashboardView: View {
                     showEvidence = true
                 }
                 quickActionButton("Export", systemImage: "square.and.arrow.up") {
-                    exportVisitPackage()
+                    previewVisitPackageExport()
                 }
             }
             if let exportedPackageURL {
@@ -402,10 +410,16 @@ public struct VisitDashboardView: View {
         persistVisit()
     }
 
-    private func exportVisitPackage() {
+    private func previewVisitPackageExport() {
+        let exporter = AtlasVisitPackageExporter()
+        exportPreviewPackage = exporter.buildPackage(for: visit)
+    }
+
+    private func confirmVisitPackageExport() {
         do {
             let exporter = AtlasVisitPackageExporter()
             let result = try exporter.export(visit)
+            exportPreviewPackage = nil
             exportedPackageURL = result.fileURL
             store.markExported(visit)
             syncFromStore()

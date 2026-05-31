@@ -13,6 +13,9 @@ public struct AtlasVisitPackageExportResult: Sendable {
 public struct AtlasVisitPackageExporter {
 
     public static let exportsDirectoryName = "VisitExports"
+    private static let checksumChunkSize = 64 * 1024
+    private static let fnv1a64OffsetBasis: UInt64 = 14_695_981_039_346_656_037
+    private static let fnv1a64Prime: UInt64 = 1_099_511_628_211
 
     private let fileManager: FileManager
     private let baseDirectory: URL?
@@ -42,7 +45,8 @@ public struct AtlasVisitPackageExporter {
     }
 
     public func buildPackage(for visit: Visit, exportedAt: Date = Date()) -> AtlasVisitPackage {
-        AtlasVisitPackage(
+        let mediaInspection = inspectMedia(for: visit)
+        return AtlasVisitPackage(
             exportedAt: exportedAt,
             visit: visit,
             captureItems: visit.captureItems,
@@ -53,22 +57,41 @@ public struct AtlasVisitPackageExporter {
                 }
             ),
             progressSummary: visit.progressSummary,
-            mediaManifest: mediaManifest(for: visit)
+            mediaManifest: mediaInspection.manifest,
+            missingMediaWarnings: mediaInspection.missingWarnings,
+            exportSummary: AtlasVisitPackageExportSummary(
+                captureItemCount: visit.captureItems.count,
+                evidenceCount: visit.evidenceRecords.count,
+                mediaCount: mediaInspection.manifest.count,
+                missingMediaCount: mediaInspection.missingWarnings.count,
+                unresolvedCount: visit.progressSummary.totalUnresolvedCount
+            )
         )
     }
 
-    private func mediaManifest(for visit: Visit) -> [AtlasVisitMediaManifestEntry] {
-        visit.evidenceRecords.compactMap { record in
-            guard let localUri = record.localUri else { return nil }
-            return AtlasVisitMediaManifestEntry(
+    private func inspectMedia(for visit: Visit) -> (manifest: [AtlasVisitMediaManifestEntry], missingWarnings: [String]) {
+        var missingWarnings: [String] = []
+        var manifest: [AtlasVisitMediaManifestEntry] = []
+
+        for record in visit.evidenceRecords {
+            guard let localUri = record.localUri else { continue }
+            let metadata = mediaMetadata(for: localUri)
+            if !metadata.exists {
+                missingWarnings.append(
+                    "Missing \(record.evidenceType.rawValue) media for evidence \(record.id.uuidString) at \(localUri)."
+                )
+            }
+            manifest.append(AtlasVisitMediaManifestEntry(
                 evidenceId: record.id,
                 relativePath: localUri,
                 evidenceType: record.evidenceType,
                 captureItemId: record.captureItemId,
-                fileSizeBytes: fileSize(for: localUri),
-                checksum: nil
-            )
+                fileSizeBytes: metadata.fileSizeBytes,
+                checksum: metadata.checksum
+            ))
         }
+
+        return (manifest, missingWarnings)
     }
 
     private func exportDirectory() throws -> URL {
@@ -78,17 +101,36 @@ public struct AtlasVisitPackageExporter {
         return directory
     }
 
-    private func fileSize(for localUri: String) -> Int64? {
+    private func mediaMetadata(for localUri: String) -> (exists: Bool, fileSizeBytes: Int64?, checksum: String?) {
         let resolvedURL = EvidenceMediaStore.resolveURL(
             for: localUri,
             fileManager: fileManager,
             baseDirectory: baseDirectory
         )
-        guard let attributes = try? fileManager.attributesOfItem(atPath: resolvedURL.path),
-              let fileSize = attributes[.size] as? NSNumber else {
+        guard fileManager.fileExists(atPath: resolvedURL.path) else {
+            return (false, nil, nil)
+        }
+        let attributes = try? fileManager.attributesOfItem(atPath: resolvedURL.path)
+        let fileSize = (attributes?[.size] as? NSNumber)?.int64Value
+        return (true, fileSize, checksum(for: resolvedURL))
+    }
+
+    private func checksum(for fileURL: URL) -> String? {
+        guard let handle = try? FileHandle(forReadingFrom: fileURL) else {
             return nil
         }
-        return fileSize.int64Value
+        defer { try? handle.close() }
+
+        var hash = Self.fnv1a64OffsetBasis
+        while true {
+            let chunk = handle.readData(ofLength: Self.checksumChunkSize)
+            guard !chunk.isEmpty else { break }
+            for byte in chunk {
+                hash ^= UInt64(byte)
+                hash = hash &* Self.fnv1a64Prime
+            }
+        }
+        return String(format: "fnv1a64:%016llx", hash)
     }
 
     private func documentsDirectory() -> URL {

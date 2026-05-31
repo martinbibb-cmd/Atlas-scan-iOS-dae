@@ -6,6 +6,7 @@ fileprivate extension AtlasVisitPackageExporterTests {
     static nonisolated(unsafe) let __allTests__AtlasVisitPackageExporterTests = [
         ("testAtlasVisitPackageEncodeDecodeRoundTrip", testAtlasVisitPackageEncodeDecodeRoundTrip),
         ("testBuildPackageIncludesVisitDataAndProgressSummary", testBuildPackageIncludesVisitDataAndProgressSummary),
+        ("testBuildPackageWarnsWhenMediaIsMissing", testBuildPackageWarnsWhenMediaIsMissing),
         ("testExportWritesJSONThatRoundTrips", testExportWritesJSONThatRoundTrips)
     ]
 }
@@ -53,11 +54,13 @@ fileprivate extension ModelTests {
         ("testProvenanceLevelAllCasesEncodeDecode", testProvenanceLevelAllCasesEncodeDecode),
         ("testRecentObjectTagsMovesMostRecentToFrontWithoutDuplicates", testRecentObjectTagsMovesMostRecentToFrontWithoutDuplicates),
         ("testRecentObjectTagsRespectsMaximumCount", testRecentObjectTagsRespectsMaximumCount),
+        ("testSurveyAssistanceLevelStorageFallbackDefaultsToExperienced", testSurveyAssistanceLevelStorageFallbackDefaultsToExperienced),
         ("testSurveyNudgeEngineAssignsModulesToGeneratedNudges", testSurveyNudgeEngineAssignsModulesToGeneratedNudges),
         ("testSurveyNudgeEngineBuildsOrderedModuleSectionsWithResolvedAndMissingCounts", testSurveyNudgeEngineBuildsOrderedModuleSectionsWithResolvedAndMissingCounts),
         ("testSurveyNudgeEngineFlagsNeedsReviewRiskAsPriority", testSurveyNudgeEngineFlagsNeedsReviewRiskAsPriority),
         ("testSurveyNudgeEngineFulfilsTargetsAndRemovesIgnoredAndNotRequiredFromActiveList", testSurveyNudgeEngineFulfilsTargetsAndRemovesIgnoredAndNotRequiredFromActiveList),
         ("testSurveyNudgeEngineGeneratesBoilerAndGoalPromptsWhenTargetsAreMissing", testSurveyNudgeEngineGeneratesBoilerAndGoalPromptsWhenTargetsAreMissing),
+        ("testSurveyNudgeGuidanceAdaptsToAssistanceLevels", testSurveyNudgeGuidanceAdaptsToAssistanceLevels),
         ("testSystemTagsMapToSystemTwinArea", testSystemTagsMapToSystemTwinArea),
         ("testSystemTwinDraftEncodeDecode", testSystemTwinDraftEncodeDecode),
         ("testTwinAreaAllCasesEncodeDecode", testTwinAreaAllCasesEncodeDecode),
