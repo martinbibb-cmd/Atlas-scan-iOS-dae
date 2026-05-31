@@ -27,6 +27,7 @@ public struct VisitDetailView: View {
     @State private var showProgressDrawer = false
     @State private var playbackErrorMessage: String?
     @State private var exportErrorMessage: String?
+    @State private var exportPreviewPackage: AtlasVisitPackage?
     @State private var exportedPackageURL: URL?
     @State private var activeAudioEvidenceId: UUID?
     @State private var selectedVideoEvidence: EvidenceRecord?
@@ -136,6 +137,13 @@ public struct VisitDetailView: View {
             }
             .padding()
 #endif
+        }
+        .sheet(item: $exportPreviewPackage) { package in
+            VisitExportPreviewSheet(
+                package: package,
+                onConfirm: { confirmVisitPackageExport() },
+                onCancel: { exportPreviewPackage = nil }
+            )
         }
     }
 
@@ -341,10 +349,10 @@ public struct VisitDetailView: View {
         Section {
             statusToggleButton
             Button("Export Visit Package") {
-                exportVisitPackage()
+                previewVisitPackageExport()
             }
             .accessibilityLabel("Export visit package")
-            .accessibilityHint("Creates a JSON export package for this visit and marks it as exported.")
+            .accessibilityHint("Previews the export package before creating it and marks it as exported once confirmed.")
             if let exportedPackageURL {
                 ShareLink(item: exportedPackageURL) {
                     Label("Share Exported Package", systemImage: "square.and.arrow.up")
@@ -448,10 +456,16 @@ public struct VisitDetailView: View {
         syncFromStore()
     }
 
-    private func exportVisitPackage() {
+    private func previewVisitPackageExport() {
+        let exporter = AtlasVisitPackageExporter()
+        exportPreviewPackage = exporter.buildPackage(for: visit)
+    }
+
+    private func confirmVisitPackageExport() {
         do {
             let exporter = AtlasVisitPackageExporter()
             let result = try exporter.export(visit)
+            exportPreviewPackage = nil
             exportedPackageURL = result.fileURL
             store.markExported(visit)
             syncFromStore()

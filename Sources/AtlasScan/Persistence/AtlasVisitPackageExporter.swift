@@ -42,6 +42,7 @@ public struct AtlasVisitPackageExporter {
     }
 
     public func buildPackage(for visit: Visit, exportedAt: Date = Date()) -> AtlasVisitPackage {
+        let mediaInspection = inspectMedia(for: visit)
         AtlasVisitPackage(
             exportedAt: exportedAt,
             visit: visit,
@@ -53,22 +54,38 @@ public struct AtlasVisitPackageExporter {
                 }
             ),
             progressSummary: visit.progressSummary,
-            mediaManifest: mediaManifest(for: visit)
+            mediaManifest: mediaInspection.manifest,
+            missingMediaWarnings: mediaInspection.missingWarnings,
+            exportSummary: AtlasVisitPackageExportSummary(
+                captureItemCount: visit.captureItems.count,
+                evidenceCount: visit.evidenceRecords.count,
+                mediaCount: mediaInspection.manifest.count,
+                missingMediaCount: mediaInspection.missingWarnings.count,
+                unresolvedCount: visit.progressSummary.totalUnresolvedCount
+            )
         )
     }
 
-    private func mediaManifest(for visit: Visit) -> [AtlasVisitMediaManifestEntry] {
-        visit.evidenceRecords.compactMap { record in
+    private func inspectMedia(for visit: Visit) -> (manifest: [AtlasVisitMediaManifestEntry], missingWarnings: [String]) {
+        var missingWarnings: [String] = []
+        let manifest = visit.evidenceRecords.compactMap { record in
             guard let localUri = record.localUri else { return nil }
+            let metadata = mediaMetadata(for: localUri)
+            if !metadata.exists {
+                missingWarnings.append(
+                    "Missing \(record.evidenceType.rawValue) media for evidence \(record.id.uuidString) at \(localUri)."
+                )
+            }
             return AtlasVisitMediaManifestEntry(
                 evidenceId: record.id,
                 relativePath: localUri,
                 evidenceType: record.evidenceType,
                 captureItemId: record.captureItemId,
-                fileSizeBytes: fileSize(for: localUri),
-                checksum: nil
+                fileSizeBytes: metadata.fileSizeBytes,
+                checksum: metadata.checksum
             )
         }
+        return (manifest, missingWarnings)
     }
 
     private func exportDirectory() throws -> URL {
@@ -78,17 +95,28 @@ public struct AtlasVisitPackageExporter {
         return directory
     }
 
-    private func fileSize(for localUri: String) -> Int64? {
+    private func mediaMetadata(for localUri: String) -> (exists: Bool, fileSizeBytes: Int64?, checksum: String?) {
         let resolvedURL = EvidenceMediaStore.resolveURL(
             for: localUri,
             fileManager: fileManager,
             baseDirectory: baseDirectory
         )
-        guard let attributes = try? fileManager.attributesOfItem(atPath: resolvedURL.path),
-              let fileSize = attributes[.size] as? NSNumber else {
-            return nil
+        guard fileManager.fileExists(atPath: resolvedURL.path) else {
+            return (false, nil, nil)
         }
-        return fileSize.int64Value
+        guard let data = try? Data(contentsOf: resolvedURL, options: [.mappedIfSafe]) else {
+            return (true, nil, nil)
+        }
+        return (true, Int64(data.count), checksum(for: data))
+    }
+
+    private func checksum(for data: Data) -> String {
+        var hash: UInt64 = 14_695_981_039_346_656_037
+        for byte in data {
+            hash ^= UInt64(byte)
+            hash = hash &* 1_099_511_628_211
+        }
+        return String(format: "fnv1a64:%016llx", hash)
     }
 
     private func documentsDirectory() -> URL {

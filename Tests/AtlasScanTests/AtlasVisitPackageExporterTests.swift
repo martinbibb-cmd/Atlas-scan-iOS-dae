@@ -31,7 +31,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
 
         let package = exporter.buildPackage(for: visit)
 
-        XCTAssertEqual(package.schemaVersion, "1.0")
+        XCTAssertEqual(package.schemaVersion, "1.1")
         XCTAssertEqual(package.sourceApp, "atlas-scan-ios-dae")
         XCTAssertEqual(package.visit.id, visit.id)
         XCTAssertEqual(package.captureItems.map(\.id), visit.captureItems.map(\.id))
@@ -40,17 +40,25 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(package.surveyNudgeStates[SurveyNudgeID.boilerCondensate.rawValue], .notRequired)
         XCTAssertEqual(package.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
         XCTAssertEqual(package.progressSummary.totalUnresolvedCount, visit.progressSummary.totalUnresolvedCount)
+        XCTAssertTrue(package.missingMediaWarnings.isEmpty)
+        XCTAssertEqual(package.exportSummary.captureItemCount, visit.captureItems.count)
+        XCTAssertEqual(package.exportSummary.evidenceCount, visit.evidenceRecords.count)
+        XCTAssertEqual(package.exportSummary.mediaCount, 3)
+        XCTAssertEqual(package.exportSummary.missingMediaCount, 0)
+        XCTAssertEqual(package.exportSummary.unresolvedCount, visit.progressSummary.totalUnresolvedCount)
         XCTAssertEqual(package.mediaManifest.count, 3)
 
         let photoEntry = try XCTUnwrap(package.mediaManifest.first { $0.evidenceType == .photo })
         XCTAssertEqual(photoEntry.relativePath, visit.evidenceRecords[0].localUri)
         XCTAssertEqual(photoEntry.captureItemId, visit.captureItems[0].id)
         XCTAssertNotNil(photoEntry.fileSizeBytes)
+        XCTAssertNotNil(photoEntry.checksum)
 
         let videoEntry = try XCTUnwrap(package.mediaManifest.first { $0.evidenceType == .video })
         XCTAssertEqual(videoEntry.relativePath, visit.evidenceRecords[1].localUri)
         XCTAssertEqual(videoEntry.captureItemId, visit.captureItems[0].id)
         XCTAssertNotNil(videoEntry.fileSizeBytes)
+        XCTAssertNotNil(videoEntry.checksum)
     }
 
     func testExportWritesJSONThatRoundTrips() throws {
@@ -70,6 +78,8 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.surveyNudgeStates, result.package.surveyNudgeStates)
         XCTAssertEqual(decoded.mediaManifest.map(\.relativePath), visit.evidenceRecords.compactMap(\.localUri))
         XCTAssertEqual(decoded.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
+        XCTAssertEqual(decoded.exportSummary, result.package.exportSummary)
+        XCTAssertEqual(decoded.missingMediaWarnings, result.package.missingMediaWarnings)
     }
 
     func testAtlasVisitPackageEncodeDecodeRoundTrip() throws {
@@ -88,6 +98,32 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.evidenceRecords.map(\.id), package.evidenceRecords.map(\.id))
         XCTAssertEqual(decoded.surveyNudgeStates, package.surveyNudgeStates)
         XCTAssertEqual(decoded.mediaManifest.map(\.relativePath), package.mediaManifest.map(\.relativePath))
+        XCTAssertEqual(decoded.exportSummary, package.exportSummary)
+        XCTAssertEqual(decoded.missingMediaWarnings, package.missingMediaWarnings)
+    }
+
+    func testBuildPackageWarnsWhenMediaIsMissing() throws {
+        let visit = try makeVisitWithMedia()
+        let missingPath = try XCTUnwrap(visit.evidenceRecords[1].localUri)
+        try fileManager.removeItem(
+            at: EvidenceMediaStore.resolveURL(
+                for: missingPath,
+                fileManager: fileManager,
+                baseDirectory: baseDirectory
+            )
+        )
+
+        let exporter = AtlasVisitPackageExporter(fileManager: fileManager, baseDirectory: baseDirectory)
+        let package = exporter.buildPackage(for: visit)
+
+        XCTAssertEqual(package.exportSummary.mediaCount, 3)
+        XCTAssertEqual(package.exportSummary.missingMediaCount, 1)
+        XCTAssertEqual(package.missingMediaWarnings.count, 1)
+        XCTAssertTrue(package.missingMediaWarnings[0].contains(missingPath))
+
+        let missingEntry = try XCTUnwrap(package.mediaManifest.first { $0.relativePath == missingPath })
+        XCTAssertNil(missingEntry.fileSizeBytes)
+        XCTAssertNil(missingEntry.checksum)
     }
 
     private func makeVisitWithMedia() throws -> Visit {
