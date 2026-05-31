@@ -15,6 +15,7 @@ public struct VisitDetailView: View {
 
     @ObservedObject public var store: VisitStore
     @Environment(\.dismiss) private var dismiss
+    @AppStorage(SurveyAssistanceLevel.storageKey) private var assistanceLevelRaw = SurveyAssistanceLevel.defaultLevel.rawValue
 
     @State private var visit: Visit
     @State private var isEditing = false
@@ -144,6 +145,10 @@ public struct VisitDetailView: View {
 
     private var surveyNudges: [SurveyNudge] {
         SurveyNudgeEngine.nudges(for: visit)
+    }
+
+    private var assistanceLevel: SurveyAssistanceLevel {
+        SurveyAssistanceLevel(storageValue: assistanceLevelRaw)
     }
 
     private var activeSurveyNudges: [SurveyNudge] {
@@ -307,6 +312,7 @@ public struct VisitDetailView: View {
                 ForEach(activeSurveyNudges) { nudge in
                     SurveyNudgeRow(
                         nudge: nudge,
+                        assistanceLevel: assistanceLevel,
                         onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
                     )
                 }
@@ -321,6 +327,7 @@ public struct VisitDetailView: View {
                 ForEach(resolvedSurveyNudges) { nudge in
                     SurveyNudgeRow(
                         nudge: nudge,
+                        assistanceLevel: assistanceLevel,
                         onClearState: {
                             clearSurveyNudgeState(nudge.id)
                         }

@@ -304,6 +304,35 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(nudges.first?.isPriority, true)
     }
 
+    func testSurveyNudgeGuidanceAdaptsToAssistanceLevels() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let visit = Visit(
+            id: visitId,
+            title: "Guidance Levels",
+            captureItems: [boiler]
+        )
+
+        let nudge = SurveyNudgeEngine.nudges(for: visit).first(where: { $0.id == .boilerFlue })
+
+        XCTAssertNotNil(nudge)
+        XCTAssertEqual(nudge?.guidanceItems(for: .expert), [])
+        XCTAssertEqual(nudge?.guidanceItems(for: .experienced).count, 1)
+        XCTAssertEqual(nudge?.guidanceItems(for: .guided).count, 3)
+        XCTAssertEqual(nudge?.guidanceItems(for: .training).count, 4)
+    }
+
+    func testSurveyAssistanceLevelStorageFallbackDefaultsToExperienced() {
+        XCTAssertEqual(SurveyAssistanceLevel(storageValue: nil), .experienced)
+        XCTAssertEqual(SurveyAssistanceLevel(storageValue: "invalid"), .experienced)
+        XCTAssertEqual(SurveyAssistanceLevel(storageValue: SurveyAssistanceLevel.training.rawValue), .training)
+    }
+
     func testVisitStatusAllCasesEncodeDecode() throws {
         for status in VisitStatus.allCases {
             let data = try encoder.encode(status)

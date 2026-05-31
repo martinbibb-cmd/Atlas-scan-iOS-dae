@@ -3,8 +3,21 @@ import SwiftUI
 
 struct SurveyNudgeRow: View {
     let nudge: SurveyNudge
+    let assistanceLevel: SurveyAssistanceLevel
     var onSetState: ((SurveyNudgeState) -> Void)?
     var onClearState: (() -> Void)?
+
+    init(
+        nudge: SurveyNudge,
+        assistanceLevel: SurveyAssistanceLevel = .defaultLevel,
+        onSetState: ((SurveyNudgeState) -> Void)? = nil,
+        onClearState: (() -> Void)? = nil
+    ) {
+        self.nudge = nudge
+        self.assistanceLevel = assistanceLevel
+        self.onSetState = onSetState
+        self.onClearState = onClearState
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -13,12 +26,34 @@ struct SurveyNudgeRow: View {
                     Text(nudge.title)
                         .font(.subheadline)
                         .fontWeight(.semibold)
-                    Text(nudge.detail)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    if assistanceLevel != .expert {
+                        Text(nudge.detail)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Spacer()
                 stateBadge
+            }
+
+            let guidanceItems = nudge.guidanceItems(for: assistanceLevel)
+            if !guidanceItems.isEmpty {
+                DisclosureGroup("Guidance") {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(Array(guidanceItems.enumerated()), id: \.offset) { index, item in
+                            HStack(alignment: .top, spacing: 6) {
+                                Text("\(index + 1).")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text(item)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .font(.caption)
             }
 
             if let onSetState, nudge.allowsDismissal, nudge.state == .suggested {
