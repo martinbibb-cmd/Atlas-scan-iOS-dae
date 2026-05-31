@@ -36,6 +36,8 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(package.visit.id, visit.id)
         XCTAssertEqual(package.captureItems.map(\.id), visit.captureItems.map(\.id))
         XCTAssertEqual(package.evidenceRecords.map(\.id), visit.evidenceRecords.map(\.id))
+        XCTAssertEqual(package.surveyNudgeStates["boilerGasMeter"], true)
+        XCTAssertEqual(package.surveyNudgeStates["boilerCondensate"], false)
         XCTAssertEqual(package.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
         XCTAssertEqual(package.progressSummary.totalUnresolvedCount, visit.progressSummary.totalUnresolvedCount)
         XCTAssertEqual(package.mediaManifest.count, 2)
@@ -60,6 +62,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.visit.id, visit.id)
         XCTAssertEqual(decoded.captureItems.count, visit.captureItems.count)
         XCTAssertEqual(decoded.evidenceRecords.count, visit.evidenceRecords.count)
+        XCTAssertEqual(decoded.surveyNudgeStates, result.package.surveyNudgeStates)
         XCTAssertEqual(decoded.mediaManifest.map(\.relativePath), visit.evidenceRecords.compactMap(\.localUri))
         XCTAssertEqual(decoded.progressSummary.totalCapturedCount, visit.progressSummary.totalCapturedCount)
     }
@@ -78,6 +81,7 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
         XCTAssertEqual(decoded.visit.id, package.visit.id)
         XCTAssertEqual(decoded.captureItems.map(\.id), package.captureItems.map(\.id))
         XCTAssertEqual(decoded.evidenceRecords.map(\.id), package.evidenceRecords.map(\.id))
+        XCTAssertEqual(decoded.surveyNudgeStates, package.surveyNudgeStates)
         XCTAssertEqual(decoded.mediaManifest.map(\.relativePath), package.mediaManifest.map(\.relativePath))
     }
 
@@ -141,7 +145,11 @@ final class AtlasVisitPackageExporterTests: XCTestCase {
             title: "Export Candidate",
             status: .completed,
             captureItems: [captureItem],
-            evidenceRecords: [photoEvidence, voiceEvidence, noteEvidence]
+            evidenceRecords: [photoEvidence, voiceEvidence, noteEvidence],
+            surveyNudgeStates: [
+                PersistedSurveyNudgeState(nudgeID: .boilerGasMeter, state: .ignored),
+                PersistedSurveyNudgeState(nudgeID: .boilerCondensate, state: .notRequired)
+            ]
         )
     }
 }
