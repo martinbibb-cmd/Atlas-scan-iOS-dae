@@ -9,20 +9,30 @@ final class ModelTests: XCTestCase {
     // MARK: - Visit
 
     func testVisitEncodeDecode() throws {
+        let visitId = UUID()
         let boiler = CaptureItem(
-            visitId: UUID(),
+            visitId: visitId,
             twinArea: .system,
             tag: .boiler,
             status: .complete,
             spaceLabel: "Utility",
             notes: "Main boiler"
         )
+        let photoEvidence = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: boiler.id,
+            evidenceType: .photo,
+            localUri: "VisitMedia/\(visitId.uuidString)/photo.jpg",
+            provenanceLevel: .surveyor
+        )
         let visit = Visit(
+            id: visitId,
             title: "Survey — 12 Elm Close",
             status: .active,
             customerName: "Jane Doe",
             addressSummary: "12 Elm Close, Sheffield, S1 1AA",
-            captureItems: [boiler]
+            captureItems: [boiler],
+            evidenceRecords: [photoEvidence]
         )
         let data = try encoder.encode(visit)
         let decoded = try decoder.decode(Visit.self, from: data)
@@ -37,6 +47,9 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.captureItems[0].status, .complete)
         XCTAssertEqual(decoded.captureItems[0].spaceLabel, "Utility")
         XCTAssertEqual(decoded.captureItems[0].notes, "Main boiler")
+        XCTAssertEqual(decoded.evidenceRecords.count, 1)
+        XCTAssertEqual(decoded.evidenceRecords[0].evidenceType, .photo)
+        XCTAssertEqual(decoded.evidenceRecords[0].localUri, photoEvidence.localUri)
     }
 
     func testVisitOptionalFieldsNil() throws {
@@ -47,6 +60,7 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(decoded.customerName)
         XCTAssertNil(decoded.addressSummary)
         XCTAssertTrue(decoded.captureItems.isEmpty)
+        XCTAssertTrue(decoded.evidenceRecords.isEmpty)
     }
 
     func testVisitValidation_validTitle() {

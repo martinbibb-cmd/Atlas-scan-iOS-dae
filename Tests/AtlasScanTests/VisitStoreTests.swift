@@ -80,6 +80,40 @@ final class VisitStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.visits[0].captureItems[1].status, .needsReview)
     }
 
+    func testEvidenceRecordsPersistMetadataRoundTrip() {
+        let visitId = UUID()
+        let captureItem = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete
+        )
+        let evidence = EvidenceRecord(
+            visitId: visitId,
+            captureItemId: captureItem.id,
+            evidenceType: .photo,
+            localUri: "VisitMedia/\(visitId.uuidString)/evidence-1.jpg",
+            provenanceLevel: .surveyor
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Photo Survey",
+            status: .active,
+            captureItems: [captureItem],
+            evidenceRecords: [evidence]
+        )
+
+        VisitStore(fileURL: fileURL).add(visit)
+        let reloaded = VisitStore(fileURL: fileURL)
+
+        XCTAssertEqual(reloaded.visits.count, 1)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords.count, 1)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].evidenceType, .photo)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].captureItemId, captureItem.id)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].localUri, evidence.localUri)
+    }
+
     func testMultipleVisitsPersistInOrder() {
         let store = VisitStore(fileURL: fileURL)
         store.add(Visit(title: "First"))
