@@ -36,5 +36,33 @@
     "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/Visit~partial.swiftmodule",
     "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/Visit.swiftdeps",
     "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/Visit.dia"
+  },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.dia"
+  },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.dia"
+  },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitDetailView.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitDetailView.dia"
+  },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/VisitListView.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitListView.dia"
   }
 }
