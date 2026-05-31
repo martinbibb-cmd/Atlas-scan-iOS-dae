@@ -114,6 +114,33 @@ final class VisitStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].localUri, evidence.localUri)
     }
 
+    func testVoiceEvidenceMetadataPersistsRoundTrip() {
+        let visitId = UUID()
+        let voiceEvidence = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .voice,
+            localUri: "VisitMedia/\(visitId.uuidString)/voice-note.m4a",
+            voiceDurationSeconds: 18.4,
+            provenanceLevel: .surveyor
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Voice Survey",
+            status: .active,
+            evidenceRecords: [voiceEvidence]
+        )
+
+        VisitStore(fileURL: fileURL).add(visit)
+        let reloaded = VisitStore(fileURL: fileURL)
+
+        XCTAssertEqual(reloaded.visits.count, 1)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords.count, 1)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].evidenceType, .voice)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].localUri, voiceEvidence.localUri)
+        XCTAssertEqual(reloaded.visits[0].evidenceRecords[0].voiceDurationSeconds, 18.4)
+    }
+
     func testMultipleVisitsPersistInOrder() {
         let store = VisitStore(fileURL: fileURL)
         store.add(Visit(title: "First"))

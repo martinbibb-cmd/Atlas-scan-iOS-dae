@@ -1,6 +1,16 @@
 import XCTest
 @testable import AtlasScanTests
 
+fileprivate extension EvidenceMediaStoreTests {
+    @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
+    static nonisolated(unsafe) let __allTests__EvidenceMediaStoreTests = [
+        ("testResolveURLReturnsAbsoluteFileURLWhenProvided", testResolveURLReturnsAbsoluteFileURLWhenProvided),
+        ("testResolveURLUsesBaseDirectoryForRelativePath", testResolveURLUsesBaseDirectoryForRelativePath),
+        ("testSavePhotoDataCreatesDirectoryAndWritesFile", testSavePhotoDataCreatesDirectoryAndWritesFile),
+        ("testSavePhotoDataThrowsWhenBaseDirectoryIsAFile", testSavePhotoDataThrowsWhenBaseDirectoryIsAFile)
+    ]
+}
+
 fileprivate extension ModelTests {
     @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
     static nonisolated(unsafe) let __allTests__ModelTests = [
@@ -46,6 +56,7 @@ fileprivate extension VisitStoreTests {
         ("testDeleteVisitPersistsToDisk", testDeleteVisitPersistsToDisk),
         ("testDeleteVisitRemovesFromMemory", testDeleteVisitRemovesFromMemory),
         ("testEmptyStoreWhenNoFileExists", testEmptyStoreWhenNoFileExists),
+        ("testEvidenceRecordsPersistMetadataRoundTrip", testEvidenceRecordsPersistMetadataRoundTrip),
         ("testMarkActiveSetsActiveStatus", testMarkActiveSetsActiveStatus),
         ("testMarkCompletedUpdatesStatus", testMarkCompletedUpdatesStatus),
         ("testMarkCompletedUpdatesUpdatedAt", testMarkCompletedUpdatesUpdatedAt),
@@ -60,6 +71,7 @@ fileprivate extension VisitStoreTests {
 @available(*, deprecated, message: "Not actually deprecated. Marked as deprecated to allow inclusion of deprecated tests (which test deprecated functionality) without warnings")
 func __AtlasScanTests__allTests() -> [XCTestCaseEntry] {
     return [
+        testCase(EvidenceMediaStoreTests.__allTests__EvidenceMediaStoreTests),
         testCase(ModelTests.__allTests__ModelTests),
         testCase(VisitStoreTests.__allTests__VisitStoreTests)
     ]

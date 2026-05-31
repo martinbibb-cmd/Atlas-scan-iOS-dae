@@ -143,6 +143,23 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.provenanceLevel, .surveyor)
     }
 
+    func testVoiceEvidenceRecordEncodeDecodeWithDuration() throws {
+        let visitId = UUID()
+        let record = EvidenceRecord(
+            visitId: visitId,
+            evidenceType: .voice,
+            localUri: "file:///surveys/note001.m4a",
+            voiceDurationSeconds: 12.3,
+            provenanceLevel: .surveyor
+        )
+        let data = try encoder.encode(record)
+        let decoded = try decoder.decode(EvidenceRecord.self, from: data)
+
+        XCTAssertEqual(decoded.evidenceType, .voice)
+        XCTAssertEqual(decoded.localUri, "file:///surveys/note001.m4a")
+        XCTAssertEqual(decoded.voiceDurationSeconds, 12.3)
+    }
+
     func testEvidenceRecordOptionalCaptureItemId() throws {
         let record = EvidenceRecord(
             visitId: UUID(),
