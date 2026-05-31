@@ -255,6 +255,18 @@ final class VisitStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.visits[0].status, .completed)
     }
 
+    func testMarkExportedSetsExportedStatusAndPersists() {
+        let store = VisitStore(fileURL: fileURL)
+        let visit = Visit(title: "Export Test", status: .completed)
+        store.add(visit)
+        store.markExported(visit)
+
+        XCTAssertEqual(store.visits[0].status, .exported)
+
+        let reloaded = VisitStore(fileURL: fileURL)
+        XCTAssertEqual(reloaded.visits[0].status, .exported)
+    }
+
     // MARK: - Persistence round-trip with optional fields nil
 
     func testNilOptionalFieldsRoundTrip() {

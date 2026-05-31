@@ -22,6 +22,8 @@ public struct VisitDetailView: View {
     @State private var showVoiceCapture = false
     @State private var showProgressDrawer = false
     @State private var playbackErrorMessage: String?
+    @State private var exportErrorMessage: String?
+    @State private var exportedPackageURL: URL?
     @State private var activeAudioEvidenceId: UUID?
 #if canImport(AVFoundation)
     @State private var audioPlayer: AVAudioPlayer?
@@ -111,6 +113,11 @@ public struct VisitDetailView: View {
             Button("OK", role: .cancel) { playbackErrorMessage = nil }
         }, message: {
             Text(playbackErrorMessage ?? "Unknown playback error.")
+        })
+        .alert("Export Failed", isPresented: exportErrorPresented, actions: {
+            Button("OK", role: .cancel) { exportErrorMessage = nil }
+        }, message: {
+            Text(exportErrorMessage ?? "Unknown export error.")
         })
     }
 
@@ -262,6 +269,14 @@ public struct VisitDetailView: View {
     private var actionSection: some View {
         Section {
             statusToggleButton
+            Button("Export Visit Package") {
+                exportVisitPackage()
+            }
+            if let exportedPackageURL {
+                ShareLink(item: exportedPackageURL) {
+                    Label("Share Exported Package", systemImage: "square.and.arrow.up")
+                }
+            }
         }
     }
 
@@ -360,6 +375,18 @@ public struct VisitDetailView: View {
         syncFromStore()
     }
 
+    private func exportVisitPackage() {
+        do {
+            let exporter = AtlasVisitPackageExporter()
+            let result = try exporter.export(visit)
+            exportedPackageURL = result.fileURL
+            store.markExported(visit)
+            syncFromStore()
+        } catch {
+            exportErrorMessage = "Unable to export visit package: \(error.localizedDescription)"
+        }
+    }
+
     private func toggleVoicePlayback(for record: EvidenceRecord) {
 #if canImport(AVFoundation)
         guard record.evidenceType == .voice,
@@ -391,6 +418,13 @@ public struct VisitDetailView: View {
         Binding(
             get: { playbackErrorMessage != nil },
             set: { if !$0 { playbackErrorMessage = nil } }
+        )
+    }
+
+    private var exportErrorPresented: Binding<Bool> {
+        Binding(
+            get: { exportErrorMessage != nil },
+            set: { if !$0 { exportErrorMessage = nil } }
         )
     }
 }

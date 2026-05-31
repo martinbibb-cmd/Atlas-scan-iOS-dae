@@ -12,7 +12,7 @@ public struct CaptureItemEvidenceGroup: Identifiable, Sendable {
     public var id: UUID { captureItem.id }
 }
 
-public struct TwinAreaSummary: Sendable {
+public struct TwinAreaSummary: Codable, Sendable {
     public let area: TwinArea
     public let captureItems: [CaptureItem]
     public let evidenceRecords: [EvidenceRecord]
@@ -48,7 +48,7 @@ public struct TwinAreaSummary: Sendable {
 
 // MARK: - VisitProgressSummary
 
-public struct VisitProgressSummary: Sendable {
+public struct VisitProgressSummary: Codable, Sendable {
     public let system: TwinAreaSummary
     public let house: TwinAreaSummary
     public let home: TwinAreaSummary
