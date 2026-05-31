@@ -1,0 +1,3 @@
+module AtlasScanPackageTests {
+    header "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanPackageTests.build/include/AtlasScanPackageTests-Swift.h"
+}
