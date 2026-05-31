@@ -64,11 +64,28 @@ The surveyor follows the system.
 
 Atlas builds the model.
 
+## Survey Navigation
+
+Atlas Scan does not require room-by-room capture.
+The preferred workflow is to follow the physical system:
+
+Boiler  
+→ Flue  
+→ Controls  
+→ Cylinder  
+→ Feed & Expansion  
+→ Meters  
+→ Emitters
+
+The house model emerges from evidence capture rather than being completed as a separate form.
+
 ## Home / House / System
 
 Atlas captures three overlapping twins.
 
 ### System Twin
+
+What exists.
 
 Physical heating and hot water infrastructure.
 
@@ -83,6 +100,8 @@ Examples:
 
 ### House Twin
 
+Where it exists.
+
 Physical building.
 
 Examples:
@@ -95,6 +114,8 @@ Examples:
 - Access routes
 
 ### Home Twin
+
+Why it matters.
 
 People and objectives.
 
@@ -176,6 +197,20 @@ Initial V0.1 object set:
 - AI-assisted surveying
 - Cloud sync
 
+### Deferred To Future Versions
+
+- ARKit geometry capture
+- Object measurement
+- RoomPlan integration
+- Spatial mesh generation
+- Automatic object recognition
+- Digital twin generation
+- Atlas Mind integration
+
+## Non-Goal
+
+Atlas Scan is not a quote tool.
+
 ## Capture Model
 
 Tap
@@ -247,6 +282,11 @@ Atlas Scan V0.1 is successful if:
 - A real survey can be completed faster than Depot.
 - A surveyor can leave site with confidence.
 - Atlas Mind receives enough information to construct meaningful twins.
+
+### Success Test
+
+Can a real surveyor complete a real survey faster than Depot while capturing richer evidence?  
+If not, Atlas Scan has failed regardless of technical sophistication.
 
 ## Initial Build Backlog (Sprint 1)
 
