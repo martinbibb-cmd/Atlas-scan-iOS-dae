@@ -45,6 +45,41 @@ final class VisitStoreTests: XCTestCase {
         XCTAssertEqual(reloaded.visits[0].status, .active)
     }
 
+    func testCaptureItemsPersistWithVisitRoundTrip() {
+        let visitId = UUID()
+        let boiler = CaptureItem(
+            visitId: visitId,
+            twinArea: .system,
+            tag: .boiler,
+            status: .complete,
+            spaceLabel: "Kitchen",
+            notes: "Combi"
+        )
+        let sink = CaptureItem(
+            visitId: visitId,
+            twinArea: .house,
+            tag: .sink,
+            status: .needsReview
+        )
+
+        let visit = Visit(
+            id: visitId,
+            title: "Tagged Survey",
+            status: .active,
+            captureItems: [boiler, sink]
+        )
+
+        VisitStore(fileURL: fileURL).add(visit)
+        let reloaded = VisitStore(fileURL: fileURL)
+
+        XCTAssertEqual(reloaded.visits.count, 1)
+        XCTAssertEqual(reloaded.visits[0].captureItems.count, 2)
+        XCTAssertEqual(reloaded.visits[0].captureItems.map(\.tag), [.boiler, .sink])
+        XCTAssertEqual(reloaded.visits[0].captureItems[0].spaceLabel, "Kitchen")
+        XCTAssertEqual(reloaded.visits[0].captureItems[0].notes, "Combi")
+        XCTAssertEqual(reloaded.visits[0].captureItems[1].status, .needsReview)
+    }
+
     func testMultipleVisitsPersistInOrder() {
         let store = VisitStore(fileURL: fileURL)
         store.add(Visit(title: "First"))

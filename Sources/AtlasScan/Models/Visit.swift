@@ -20,6 +20,7 @@ public struct Visit: Identifiable, Codable, Sendable {
     public var status: VisitStatus
     public var customerName: String?
     public var addressSummary: String?
+    public var captureItems: [CaptureItem]
 
     public init(
         id: UUID = UUID(),
@@ -28,7 +29,8 @@ public struct Visit: Identifiable, Codable, Sendable {
         updatedAt: Date = Date(),
         status: VisitStatus = .draft,
         customerName: String? = nil,
-        addressSummary: String? = nil
+        addressSummary: String? = nil,
+        captureItems: [CaptureItem] = []
     ) {
         self.id = id
         self.title = title
@@ -37,6 +39,7 @@ public struct Visit: Identifiable, Codable, Sendable {
         self.status = status
         self.customerName = customerName
         self.addressSummary = addressSummary
+        self.captureItems = captureItems
     }
 
     /// Returns `true` when the visit has a non-blank title.

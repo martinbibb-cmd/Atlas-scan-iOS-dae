@@ -42,6 +42,7 @@ fileprivate extension VisitStoreTests {
     static nonisolated(unsafe) let __allTests__VisitStoreTests = [
         ("testAddVisitAppearsInMemory", testAddVisitAppearsInMemory),
         ("testAddVisitPersistsToDisk", testAddVisitPersistsToDisk),
+        ("testCaptureItemsPersistWithVisitRoundTrip", testCaptureItemsPersistWithVisitRoundTrip),
         ("testDeleteVisitPersistsToDisk", testDeleteVisitPersistsToDisk),
         ("testDeleteVisitRemovesFromMemory", testDeleteVisitRemovesFromMemory),
         ("testEmptyStoreWhenNoFileExists", testEmptyStoreWhenNoFileExists),
