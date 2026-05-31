@@ -109,7 +109,7 @@ public final class VisitStore {
             let data = try encoder.encode(visits)
             try data.write(to: fileURL, options: .atomic)
         } catch {
-            // Surface via logging in a future iteration.
+            fputs("[VisitStore] Failed to persist visits: \(error)\n", stderr)
         }
     }
 }

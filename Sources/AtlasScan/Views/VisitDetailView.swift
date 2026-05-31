@@ -111,6 +111,9 @@ public struct VisitDetailView: View {
         .onChange(of: showProgressDrawer) { isShowing in
             if !isShowing { syncFromStore() }
         }
+        .onAppear {
+            resolveLastExportedPackageURL()
+        }
         .onDisappear {
 #if canImport(AVFoundation)
             audioPlayer?.stop()
@@ -472,6 +475,23 @@ public struct VisitDetailView: View {
         } catch {
             exportErrorMessage = "Unable to export visit package: \(error.localizedDescription)"
         }
+    }
+
+    /// Looks for the most recent exported package file for this visit on disk.
+    /// Called on view appear so the share link is available after an app restart.
+    private func resolveLastExportedPackageURL() {
+        guard exportedPackageURL == nil else { return }
+        let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let exportDir = docs.appendingPathComponent(AtlasVisitPackageExporter.exportsDirectoryName)
+        guard let files = try? FileManager.default.contentsOfDirectory(
+            at: exportDir,
+            includingPropertiesForKeys: nil
+        ) else { return }
+        let prefix = "atlas-visit-\(visit.id.uuidString)-"
+        exportedPackageURL = files
+            .filter { $0.lastPathComponent.hasPrefix(prefix) }
+            .sorted { $0.lastPathComponent > $1.lastPathComponent }
+            .first
     }
 
     private func updateSurveyNudgeState(_ id: SurveyNudgeID, state: SurveyNudgeState) {

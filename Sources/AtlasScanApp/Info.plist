@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Camera — used for photo and video evidence capture -->
+    <key>NSCameraUsageDescription</key>
+    <string>Atlas Scan uses the camera to capture photo and video evidence of survey items.</string>
+
+    <!-- Microphone — used for voice note evidence -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Atlas Scan uses the microphone to record voice notes linked to survey evidence.</string>
+
+    <!-- Photo library — fallback access when camera is unavailable (e.g. simulator) -->
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Atlas Scan may access the photo library to attach images to field test issue reports.</string>
+
+    <key>UILaunchScreen</key>
+    <dict/>
+
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+    </dict>
+</dict>
+</plist>
