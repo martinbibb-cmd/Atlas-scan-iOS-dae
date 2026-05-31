@@ -47,6 +47,8 @@ fileprivate extension ModelTests {
         ("testObjectTagAllCasesEncodeDecode", testObjectTagAllCasesEncodeDecode),
         ("testObjectTagCountMatchesAllCases", testObjectTagCountMatchesAllCases),
         ("testProvenanceLevelAllCasesEncodeDecode", testProvenanceLevelAllCasesEncodeDecode),
+        ("testRecentObjectTagsMovesMostRecentToFrontWithoutDuplicates", testRecentObjectTagsMovesMostRecentToFrontWithoutDuplicates),
+        ("testRecentObjectTagsRespectsMaximumCount", testRecentObjectTagsRespectsMaximumCount),
         ("testSurveyNudgeEngineFlagsNeedsReviewRiskAsPriority", testSurveyNudgeEngineFlagsNeedsReviewRiskAsPriority),
         ("testSurveyNudgeEngineFulfilsTargetsAndRemovesIgnoredAndNotRequiredFromActiveList", testSurveyNudgeEngineFulfilsTargetsAndRemovesIgnoredAndNotRequiredFromActiveList),
         ("testSurveyNudgeEngineGeneratesBoilerAndGoalPromptsWhenTargetsAreMissing", testSurveyNudgeEngineGeneratesBoilerAndGoalPromptsWhenTargetsAreMissing),
