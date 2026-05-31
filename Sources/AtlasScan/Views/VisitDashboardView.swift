@@ -236,25 +236,30 @@ public struct VisitDashboardView: View {
     }
 
     private var nudgeList: some View {
-        let nudges = SurveyNudgeEngine.nudges(for: visit)
+        let sections = SurveyNudgeEngine.moduleSections(for: visit)
         return List {
-            if nudges.isEmpty {
+            if sections.isEmpty {
                 Text("No survey nudges right now.")
                     .foregroundStyle(.secondary)
             } else {
-                ForEach(nudges) { nudge in
-                    if nudge.isActive {
-                        SurveyNudgeRow(
-                            nudge: nudge,
-                            assistanceLevel: assistanceLevel,
-                            onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
-                        )
-                    } else {
-                        SurveyNudgeRow(
-                            nudge: nudge,
-                            assistanceLevel: assistanceLevel,
-                            onClearState: { clearSurveyNudgeState(nudge.id) }
-                        )
+                ForEach(sections) { section in
+                    Section(section.module.displayName) {
+                        nudgeModuleSummaryRow(section)
+                        ForEach(section.nudges) { nudge in
+                            if nudge.isActive {
+                                SurveyNudgeRow(
+                                    nudge: nudge,
+                                    assistanceLevel: assistanceLevel,
+                                    onSetState: { updateSurveyNudgeState(nudge.id, state: $0) }
+                                )
+                            } else {
+                                SurveyNudgeRow(
+                                    nudge: nudge,
+                                    assistanceLevel: assistanceLevel,
+                                    onClearState: { clearSurveyNudgeState(nudge.id) }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -266,6 +271,16 @@ public struct VisitDashboardView: View {
                 Button("Done") { showNudges = false }
             }
         }
+    }
+
+    private func nudgeModuleSummaryRow(_ section: SurveyModuleNudgeSection) -> some View {
+        HStack(spacing: 12) {
+            Text("\(section.resolvedCount) resolved")
+            Text("\(section.missingCount) missing")
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .textCase(nil)
     }
 
     private var evidenceList: some View {
