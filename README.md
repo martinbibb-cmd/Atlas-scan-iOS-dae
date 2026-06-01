@@ -1,5 +1,25 @@
 # Atlas Scan
 
+## Open and Run in Xcode
+
+Use the app project, not Swift Package mode.
+
+Open:
+
+- `AtlasScan.xcodeproj`
+
+Do NOT open:
+
+- `Package.swift`
+- the repository folder as a Swift Package
+
+In Xcode:
+
+1. Select the `AtlasScanApp` scheme.
+2. Select an iPhone simulator or a physical iPhone.
+3. Press Run to install and launch `AtlasScanApp.app`.
+4. The app should launch to the visit list (`VisitListView`).
+
 ## Repository Description
 
 Atlas Scan is a spatial-first survey capture application for heating, hot water, and home energy systems.
