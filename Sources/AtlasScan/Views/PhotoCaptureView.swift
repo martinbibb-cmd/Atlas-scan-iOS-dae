@@ -466,15 +466,15 @@ private struct PhotoTagSheetView: View {
                 hasManualTwinAreaOverride = selectedTwinArea != selectedTag.defaultTwinArea
             }
         }
-        .onChange(of: selectedTag) { newTag in
+        .onChange(of: selectedTag) { _, newTag in
             if !hasManualTwinAreaOverride {
                 selectedTwinArea = newTag.defaultTwinArea
             }
         }
-        .onChange(of: selectedTwinArea) { newTwinArea in
+        .onChange(of: selectedTwinArea) { _, newTwinArea in
             hasManualTwinAreaOverride = newTwinArea != selectedTag.defaultTwinArea
         }
-        .onChange(of: attachToExistingItem) { shouldAttach in
+        .onChange(of: attachToExistingItem) { _, shouldAttach in
             if shouldAttach {
                 if selectedCaptureItemId == nil {
                     selectedCaptureItemId = captureItems.first?.id
@@ -484,7 +484,7 @@ private struct PhotoTagSheetView: View {
                 hasManualTwinAreaOverride = selectedTwinArea != selectedTag.defaultTwinArea
             }
         }
-        .onChange(of: selectedCaptureItemId) { _ in
+        .onChange(of: selectedCaptureItemId) { _, _ in
             if attachToExistingItem {
                 applySelectedItem()
             }
