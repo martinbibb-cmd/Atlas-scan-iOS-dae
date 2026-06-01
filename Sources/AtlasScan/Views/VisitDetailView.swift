@@ -108,7 +108,7 @@ public struct VisitDetailView: View {
                 selectedTwinArea: $selectedTwinArea
             )
         }
-        .onChange(of: showProgressDrawer) { isShowing in
+        .onChange(of: showProgressDrawer) { _, isShowing in
             if !isShowing { syncFromStore() }
         }
         .onAppear {
@@ -817,12 +817,12 @@ private struct CaptureItemEditor: View {
                 }
             }
         }
-        .onChange(of: tag) { newTag in
+        .onChange(of: tag) { _, newTag in
             if !hasManualTwinAreaOverride {
                 twinArea = newTag.defaultTwinArea
             }
         }
-        .onChange(of: twinArea) { newTwinArea in
+        .onChange(of: twinArea) { _, newTwinArea in
             hasManualTwinAreaOverride = newTwinArea != tag.defaultTwinArea
         }
     }

@@ -169,10 +169,10 @@ struct FieldTestIssueLoggerSheet: View {
 
     private func startVoiceNoteRecording() {
         let audioSession = AVAudioSession.sharedInstance()
-        let permission = audioSession.recordPermission
+        let permission = AVAudioApplication.recordPermission
         guard permission == .granted else {
             if permission == .undetermined {
-                audioSession.requestRecordPermission { granted in
+                AVAudioApplication.requestRecordPermission { granted in
                     DispatchQueue.main.async {
                         if granted {
                             startVoiceNoteRecording()
