@@ -9,11 +9,17 @@ let package = Package(
     ],
     products: [
         .library(name: "AtlasScan", targets: ["AtlasScan"]),
+        .executable(name: "AtlasScanApp", targets: ["AtlasScanApp"]),
     ],
     targets: [
         .target(
             name: "AtlasScan",
             path: "Sources/AtlasScan"
+        ),
+        .executableTarget(
+            name: "AtlasScanApp",
+            dependencies: ["AtlasScan"],
+            path: "Sources/AtlasScanApp"
         ),
         .testTarget(
             name: "AtlasScanTests",

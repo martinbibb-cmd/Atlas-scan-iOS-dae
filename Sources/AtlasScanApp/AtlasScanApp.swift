@@ -13,4 +13,9 @@ struct AtlasScanApp: App {
         }
     }
 }
+#else
+@main
+struct AtlasScanAppCLI {
+    static func main() {}
+}
 #endif
