@@ -174,7 +174,7 @@ public struct VoiceNoteCaptureView: View {
 
 private final class VoiceRecorderController: NSObject, ObservableObject {
 
-    @Published private(set) var permission: AVAudioApplication.RecordPermission
+    @Published private(set) var permission: AVAudioSession.RecordPermission
     @Published private(set) var isRecording = false
     @Published private(set) var elapsedSeconds: TimeInterval = 0
 
@@ -186,13 +186,13 @@ private final class VoiceRecorderController: NSObject, ObservableObject {
     private static let audioQuality = AVAudioQuality.high.rawValue
 
     override init() {
-        permission = AVAudioApplication.recordPermission
+        permission = audioSession.recordPermission
         super.init()
     }
 
     func requestPermissionIfNeeded() {
         guard permission == .undetermined else { return }
-        AVAudioApplication.requestRecordPermission { [weak self] granted in
+        audioSession.requestRecordPermission { [weak self] granted in
             DispatchQueue.main.async {
                 self?.permission = granted ? .granted : .denied
             }
