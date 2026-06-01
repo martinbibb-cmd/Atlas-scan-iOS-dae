@@ -7,6 +7,33 @@ import UIKit
 import AVFoundation
 #endif
 
+#if canImport(AVFoundation)
+private enum MicrophonePermission {
+    case undetermined
+    case denied
+    case granted
+
+    static func current() -> Self {
+        switch AVCaptureDevice.authorizationStatus(for: .audio) {
+        case .notDetermined:
+            return .undetermined
+        case .authorized:
+            return .granted
+        case .denied, .restricted:
+            return .denied
+        @unknown default:
+            return .denied
+        }
+    }
+
+    static func request(_ completion: @escaping (Self) -> Void) {
+        AVCaptureDevice.requestAccess(for: .audio) { granted in
+            completion(granted ? .granted : .denied)
+        }
+    }
+}
+#endif
+
 struct FieldTestIssueLoggerSheet: View {
     @Environment(\.dismiss) private var dismiss
 
@@ -169,12 +196,12 @@ struct FieldTestIssueLoggerSheet: View {
 
     private func startVoiceNoteRecording() {
         let audioSession = AVAudioSession.sharedInstance()
-        let permission = AVAudioApplication.recordPermission
+        let permission = MicrophonePermission.current()
         guard permission == .granted else {
             if permission == .undetermined {
-                AVAudioApplication.requestRecordPermission { granted in
+                MicrophonePermission.request { permission in
                     DispatchQueue.main.async {
-                        if granted {
+                        if permission == .granted {
                             startVoiceNoteRecording()
                         } else {
                             errorMessage = "Microphone access is required to attach a voice note."
