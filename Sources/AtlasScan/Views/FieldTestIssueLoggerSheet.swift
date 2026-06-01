@@ -168,7 +168,6 @@ struct FieldTestIssueLoggerSheet: View {
     }
 
     private func startVoiceNoteRecording() {
-        let audioSession = AVAudioSession.sharedInstance()
         let permission = MicrophonePermission.current()
         guard permission == .granted else {
             if permission == .undetermined {
@@ -198,6 +197,7 @@ struct FieldTestIssueLoggerSheet: View {
         ]
 
         do {
+            let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try audioSession.setActive(true)
             let recorder = try AVAudioRecorder(url: recordingURL, settings: settings)
