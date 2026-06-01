@@ -168,13 +168,12 @@ struct FieldTestIssueLoggerSheet: View {
     }
 
     private func startVoiceNoteRecording() {
-        let audioSession = AVAudioSession.sharedInstance()
-        let permission = AVAudioApplication.recordPermission
+        let permission = MicrophonePermission.current()
         guard permission == .granted else {
             if permission == .undetermined {
-                AVAudioApplication.requestRecordPermission { granted in
+                MicrophonePermission.request { permission in
                     DispatchQueue.main.async {
-                        if granted {
+                        if permission == .granted {
                             startVoiceNoteRecording()
                         } else {
                             errorMessage = "Microphone access is required to attach a voice note."
@@ -198,6 +197,7 @@ struct FieldTestIssueLoggerSheet: View {
         ]
 
         do {
+            let audioSession = AVAudioSession.sharedInstance()
             try audioSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
             try audioSession.setActive(true)
             let recorder = try AVAudioRecorder(url: recordingURL, settings: settings)
