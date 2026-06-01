@@ -2,6 +2,9 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CFBundleIdentifier</key>
+    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+
     <!-- Camera — used for photo and video evidence capture -->
     <key>NSCameraUsageDescription</key>
     <string>Atlas Scan uses the camera to capture photo and video evidence of survey items.</string>
