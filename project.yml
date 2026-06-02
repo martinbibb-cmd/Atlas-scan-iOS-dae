@@ -1,0 +1,24 @@
+name: AtlasScan
+options:
+  bundleIdPrefix: com.martinbibb
+targets:
+  AtlasScan:
+    type: framework
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - Sources/AtlasScan
+  AtlasScanApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - Sources/AtlasScanApp
+    dependencies:
+      - target: AtlasScan
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.martinbibb.AtlasScanApp
+        INFOPLIST_FILE: Sources/AtlasScanApp/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: AtlasScan
+        INFOPLIST_KEY_CFBundleName: AtlasScan
