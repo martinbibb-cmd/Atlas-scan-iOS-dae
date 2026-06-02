@@ -16,7 +16,7 @@ This project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) to generate 
 
    ```bash
    git clone <repo-url>
-   cd Atlas-scan-iOS-dae
+   cd <repository-folder>
    xcodegen generate
    ```
 
