@@ -2,23 +2,40 @@
 
 ## Open and Run in Xcode
 
-Use the app project, not Swift Package mode.
+This project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) to generate the Xcode project from `project.yml`. The `.xcodeproj` folder is not committed to the repository.
 
-Open:
+### First-time setup
 
-- `AtlasScan.xcodeproj`
+1. Install XcodeGen (requires [Homebrew](https://brew.sh)):
+
+   ```bash
+   brew install xcodegen
+   ```
+
+2. Clone the repository and generate the project:
+
+   ```bash
+   git clone <repo-url>
+   cd Atlas-scan-iOS-dae
+   xcodegen generate
+   ```
+
+3. Open the generated project in Xcode:
+
+   ```bash
+   open AtlasScan.xcodeproj
+   ```
+
+4. Select the `AtlasScanApp` scheme, choose an iPhone simulator or physical device, and press **Run**.
+
+### Subsequent clones / after pulling changes
+
+Run `xcodegen generate` again from the repository root whenever you clone fresh or pull changes that modify `project.yml`. The `.xcodeproj` is regenerated locally and never needs to be pushed to GitHub.
 
 Do NOT open:
 
-- `Package.swift`
+- `Package.swift` directly (this opens Swift Package mode, not the app target)
 - the repository folder as a Swift Package
-
-In Xcode:
-
-1. Select the `AtlasScanApp` scheme.
-2. Select an iPhone simulator or a physical iPhone.
-3. Press Run to install and launch `AtlasScanApp.app`.
-4. The app should launch to the visit list (`VisitListView`).
 
 ## Repository Description
 
