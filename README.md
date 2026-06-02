@@ -2,11 +2,11 @@
 
 ## Open and Run in Xcode
 
-Use the app project, not Swift Package mode.
+Generate the app project from `project.yml` so it is always mapped to your local machine:
 
-Open:
-
-- `AtlasScan.xcodeproj`
+1. Install XcodeGen (once): `brew install xcodegen`
+2. From the repository root run: `xcodegen generate`
+3. Open: `AtlasScan.xcodeproj`
 
 Do NOT open:
 
