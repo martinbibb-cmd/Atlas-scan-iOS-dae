@@ -3,8 +3,7 @@ options:
   bundleIdPrefix: com.martinbibb
 packages:
   AtlasContracts:
-    url: https://github.com/martinbibb-cmd/Atlas-contract-dae
-    from: 1.1.0
+    path: ../atlas-contact-dae
 targets:
   AtlasScan:
     type: framework
