@@ -1,9 +1,6 @@
 name: AtlasScan
 options:
   bundleIdPrefix: com.martinbibb
-packages:
-  AtlasContracts:
-    path: ../atlas-contact-dae
 targets:
   AtlasScan:
     type: framework
@@ -11,9 +8,6 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - Sources/AtlasScan
-    dependencies:
-      - package: AtlasContracts
-        product: AtlasContracts
   AtlasScanApp:
     type: application
     platform: iOS
@@ -22,8 +16,6 @@ targets:
       - Sources/AtlasScanApp
     dependencies:
       - target: AtlasScan
-      - package: AtlasContracts
-        product: AtlasContracts
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.martinbibb.AtlasScanApp
