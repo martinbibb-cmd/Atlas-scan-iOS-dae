@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: macos-14
+    runs-on: macos-15
 
     steps:
       - name: Checkout
@@ -19,6 +19,17 @@ jobs:
 
       - name: Install XcodeGen
         run: brew install xcodegen
+
+      - name: Select Xcode 16.4
+        run: |
+          XCODE_PATH="/Applications/Xcode_16.4.app/Contents/Developer"
+          if [ ! -d "$XCODE_PATH" ]; then
+            echo "Expected Xcode not found at $XCODE_PATH"
+            ls -1 /Applications | grep -E '^Xcode'
+            exit 1
+          fi
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
 
       - name: Generate Xcode project
         run: xcodegen generate
