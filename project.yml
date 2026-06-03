@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.martinbibb
 targets:
   AtlasScan:
-    type: framework
+    type: staticLibrary
     platform: iOS
     deploymentTarget: "17.0"
     sources:
@@ -22,3 +22,4 @@ targets:
         INFOPLIST_FILE: Sources/AtlasScanApp/Info.plist
         INFOPLIST_KEY_CFBundleDisplayName: AtlasScan
         INFOPLIST_KEY_CFBundleName: AtlasScan
+        CODE_SIGN_STYLE: Automatic

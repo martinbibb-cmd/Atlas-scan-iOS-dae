@@ -2,10 +2,12 @@
 
 ## Open and Run in Xcode
 
-Generate the app project from `project.yml` so it is always mapped to your local machine:
+`project.yml` is the source of truth for the Xcode project. Do not hand-edit `.xcodeproj` files.
+
+Bootstrap from a fresh clone:
 
 1. Install XcodeGen (once): `brew install xcodegen`
-2. From the repository root run: `xcodegen generate`
+2. From the repository root run: `./bootstrap.sh`
 3. Open: `AtlasScan.xcodeproj`
 
 Do NOT open:
@@ -17,8 +19,9 @@ In Xcode:
 
 1. Select the `AtlasScanApp` scheme.
 2. Select an iPhone simulator or a physical iPhone.
-3. Press Run to install and launch `AtlasScanApp.app`.
-4. The app should launch to the visit list (`VisitListView`).
+3. Select your signing team for `AtlasScanApp` if prompted.
+4. Press Run to install and launch `AtlasScanApp.app`.
+5. The app should launch to the visit list (`VisitListView`).
 
 ## Repository Description
 
