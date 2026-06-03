@@ -6,9 +6,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: macos-14
 
     steps:
       - name: Checkout
@@ -29,4 +32,8 @@ jobs:
             -project AtlasScan.xcodeproj \
             -scheme AtlasScanApp \
             -destination 'generic/platform=iOS' \
+            -derivedDataPath BuildArtifacts \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Verify app artifact exists
+        run: test -d BuildArtifacts/Build/Products/Debug-iphoneos/AtlasScanApp.app
