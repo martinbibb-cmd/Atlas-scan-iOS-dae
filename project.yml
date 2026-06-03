@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.martinbibb
 targets:
   AtlasScan:
-    type: staticLibrary
+    type: library.static
     platform: iOS
     deploymentTarget: "17.0"
     sources:
