@@ -1,0 +1,32 @@
+name: iOS Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Resolve Swift package dependencies
+        run: xcodebuild -resolvePackageDependencies -project AtlasScan.xcodeproj
+
+      - name: Build AtlasScanApp
+        run: |
+          xcodebuild clean build \
+            -project AtlasScan.xcodeproj \
+            -scheme AtlasScanApp \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO
