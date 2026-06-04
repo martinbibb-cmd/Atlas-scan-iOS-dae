@@ -60,7 +60,7 @@ public struct VisitDetailView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button(isEditing ? "Done" : "Edit") { toggleEdit() }
             }
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: .navigation) {
                 Button {
                     showProgressDrawer = true
                 } label: {
@@ -716,7 +716,7 @@ private struct VideoEvidencePlaybackView: View {
                 VideoPlayer(player: AVPlayer(url: url))
                     .frame(minHeight: 280)
                     .navigationTitle("Video Evidence")
-                    .navigationBarTitleDisplayMode(.inline)
+                    .iOSNavigationBarTitleDisplayMode(.inline)
             } else {
                 Text("Video file is unavailable.")
                     .foregroundStyle(.secondary)
@@ -805,7 +805,7 @@ private struct CaptureItemEditor: View {
                 }
             }
             .navigationTitle(existingItem == nil ? "New Capture Item" : "Edit Capture Item")
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

@@ -35,7 +35,7 @@ struct VisitExportPreviewSheet: View {
                 }
             }
             .navigationTitle("Export Preview")
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", action: onCancel)

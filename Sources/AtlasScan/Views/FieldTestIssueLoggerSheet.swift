@@ -81,7 +81,7 @@ struct FieldTestIssueLoggerSheet: View {
                 }
             }
             .navigationTitle("Log Field Issue")
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
