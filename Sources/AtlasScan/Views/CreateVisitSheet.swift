@@ -27,7 +27,7 @@ public struct CreateVisitSheet: View {
                 }
             }
             .navigationTitle("New Visit")
-            .iOSNavigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }

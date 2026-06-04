@@ -64,7 +64,7 @@ public struct VoiceNoteCaptureView: View {
                 }
             }
             .navigationTitle("Voice Note")
-            .iOSNavigationBarTitleDisplayMode(.inline)
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") {

@@ -89,7 +89,7 @@ public struct VisitProgressView: View {
             }
         }
         .navigationTitle("Survey Progress")
-        .iOSNavigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") { dismiss() }
