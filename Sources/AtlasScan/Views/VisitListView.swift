@@ -23,7 +23,7 @@ public struct VisitListView: View {
             }
             .navigationTitle("Visits")
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .navigation) {
                     assistanceLevelMenu
                 }
                 ToolbarItem(placement: .primaryAction) {

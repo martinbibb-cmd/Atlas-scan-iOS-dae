@@ -76,7 +76,7 @@ public struct PhotoCaptureView: View {
             }
             .padding()
             .navigationTitle("Capture Evidence")
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
@@ -452,7 +452,7 @@ private struct PhotoTagSheetView: View {
                 }
             }
             .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { onSave() }

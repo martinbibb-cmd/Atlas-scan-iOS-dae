@@ -45,7 +45,7 @@ public struct VisitDashboardView: View {
             .padding()
         }
         .navigationTitle(visit.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .iOSNavigationBarTitleDisplayMode(.inline)
         .onAppear {
             syncFromStore()
             resolveLastExportedPackageURL()
@@ -321,7 +321,7 @@ public struct VisitDashboardView: View {
             }
         }
         .navigationTitle("Nudges")
-        .navigationBarTitleDisplayMode(.inline)
+        .iOSNavigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") { showNudges = false }
@@ -366,7 +366,7 @@ public struct VisitDashboardView: View {
             }
         }
         .navigationTitle("Evidence")
-        .navigationBarTitleDisplayMode(.inline)
+        .iOSNavigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") { showEvidence = false }
@@ -603,7 +603,7 @@ private struct ManualCaptureItemSheet: View {
                 }
             }
             .navigationTitle("Manual Tag")
-            .navigationBarTitleDisplayMode(.inline)
+            .iOSNavigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
