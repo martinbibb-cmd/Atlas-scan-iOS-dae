@@ -100,6 +100,13 @@
     "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/MicrophonePermission.swiftdeps",
     "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/MicrophonePermission.dia"
   },
+  "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/View+PlatformModifiers.swift": {
+    "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.d",
+    "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.swift.o",
+    "swiftmodule": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers~partial.swiftmodule",
+    "swift-dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.swiftdeps",
+    "diagnostics": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.dia"
+  },
   "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift": {
     "dependencies": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.d",
     "object": "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o",

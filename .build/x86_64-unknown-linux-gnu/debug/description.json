@@ -84,6 +84,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/View+PlatformModifiers.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift"
         },
         {
@@ -149,6 +153,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/EvidenceMediaStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/VisitStore.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/MicrophonePermission.swift.o",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/FieldTestIssueLoggerSheet.swift.o",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/PhotoCaptureView.swift.o",
@@ -181,7 +186,6 @@
         "-emit-objc-header",
         "-emit-objc-header-path",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/include/AtlasScan-Swift.h",
-        "-color-diagnostics",
         "-swift-version",
         "5",
         "-g",
@@ -254,6 +258,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/CreateVisitSheet.swift.o"
         },
         {
@@ -313,6 +321,7 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/MicrophonePermission.swift",
+        "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/View+PlatformModifiers.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
@@ -383,7 +392,6 @@
         "-emit-objc-header",
         "-emit-objc-header-path",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanPackageDiscoveredTests.build/include/AtlasScanPackageDiscoveredTests-Swift.h",
-        "-color-diagnostics",
         "-g",
         "-Xcc",
         "-fPIC",
@@ -472,7 +480,6 @@
         "-emit-objc-header",
         "-emit-objc-header-path",
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanPackageTests.build/include/AtlasScanPackageTests-Swift.h",
-        "-color-diagnostics",
         "-g",
         "-Xcc",
         "-fPIC",
@@ -564,7 +571,6 @@
         "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
         "-parseable-output",
         "-parse-as-library",
-        "-color-diagnostics",
         "-swift-version",
         "5",
         "-g",
@@ -636,6 +642,7 @@
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/EvidenceMediaStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Persistence/VisitStore.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/MicrophonePermission.swift",
+      "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/View+PlatformModifiers.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/FieldTestIssueLoggerSheet.swift",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/PhotoCaptureView.swift",
@@ -668,7 +675,6 @@
       "-emit-objc-header",
       "-emit-objc-header-path",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/include/AtlasScan-Swift.h",
-      "-color-diagnostics",
       "-swift-version",
       "5",
       "-g",
@@ -716,7 +722,6 @@
       "-emit-objc-header",
       "-emit-objc-header-path",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanPackageDiscoveredTests.build/include/AtlasScanPackageDiscoveredTests-Swift.h",
-      "-color-diagnostics",
       "-g",
       "-Xcc",
       "-fPIC",
@@ -761,7 +766,6 @@
       "-emit-objc-header",
       "-emit-objc-header-path",
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScanPackageTests.build/include/AtlasScanPackageTests-Swift.h",
-      "-color-diagnostics",
       "-g",
       "-Xcc",
       "-fPIC",
@@ -806,7 +810,6 @@
       "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/ModuleCache",
       "-parseable-output",
       "-parse-as-library",
-      "-color-diagnostics",
       "-swift-version",
       "5",
       "-g",
@@ -958,6 +961,10 @@
         },
         {
           "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Support/View+PlatformModifiers.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/Sources/AtlasScan/Views/CreateVisitSheet.swift"
         },
         {
@@ -1101,6 +1108,10 @@
         {
           "kind" : "file",
           "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/TwinDrafts.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/tmp/workspace/martinbibb-cmd/Atlas-scan-iOS-dae/.build/x86_64-unknown-linux-gnu/debug/AtlasScan.build/View+PlatformModifiers.swift.o"
         },
         {
           "kind" : "file",
